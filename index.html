@@ -3,8 +3,9 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>MedTerm — 의료용어사전</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -148,64 +149,59 @@ border:1px solid rgba(255,255,255,0.07); padding:12px; }
 
 </head>
 <body>
-<div id="root"></div>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script type="text/babel">
-const { useState, useRef, useCallback } = React;
-
+<div id="app"></div>
+<script>
 const DB = [
-{id:1,cat:“cardiac”,kr:“심근경색”,en:“Myocardial Infarction”,abbr:“MI / AMI”,urg:“critical”,def:“관상동맥이 혈전으로 완전히 막혀 심근 조직이 괴사하는 응급 질환. STEMI와 NSTEMI로 분류되며 초기 재관류 치료가 예후를 결정한다.”,syms:[“극심한 흉통 (압박·쥐어짜는 느낌, 30분↑)”,“좌측 팔·어깨·턱으로 방사통”,“호흡곤란, 식은땀”,“오심·구토”,“실신 또는 의식 저하”],nursing:[“즉시 12-lead ECG 시행 및 판독”,“IV access 2개↑ (18G↑) 확보”,“Aspirin 300mg 씹어 복용”,“NTG 설하 (SBP ≥90mmHg 확인 후)”,“STEMI 확인 시 PCI팀 즉시 호출”],labs:[“Troponin I/T”,“CK-MB”,“BNP”,“CBC, PT/aPTT”,“Lipid panel”],notes:’“Time is Muscle” — 증상 발생 시각을 정확히 기록. 당뇨 환자는 무통성 심근경색 가능.’,related:[“협심증”,“심부전”,“심정지”,“STEMI”,“PCI”]},
-{id:2,cat:“cardiac”,kr:“심부전”,en:“Heart Failure”,abbr:“HF / CHF”,urg:“urgent”,def:“심장이 신체에 필요한 혈액을 충분히 박출하지 못하는 상태. EF에 따라 HFrEF(≤40%)와 HFpEF(≥50%)로 구분된다.”,syms:[“호흡곤란 (기좌호흡 — 눕히면 악화)”,“하지 부종 (양측성, 저녁 악화)”,“야간 발작성 호흡곤란 (PND)”,“피로감, 운동 불내성”,“복수, 간비대 (우심부전)”],nursing:[“체중 매일 측정 (1일 2kg↑ 즉시 보고)”,“I&O 정확 기록, 수분 제한 1.5-2L/일”,“반좌위 (HOB 30-45도)”,“저염식이 (2g/일↓)”,“Diuretics 후 소변량·K+ 확인”],labs:[“BNP / NT-proBNP”,“Echo (EF)”,“Chest X-ray”,“BMP”,“Troponin”],notes:“BNP >100 pg/mL는 심부전 가능성 높음. 단 비만 환자는 낮게 측정될 수 있음.”,related:[“심근경색”,“부정맥”,“폐부종”,“BNP”,“이뇨제”]},
-{id:3,cat:“cardiac”,kr:“부정맥”,en:“Arrhythmia”,abbr:“A-fib / VF / VT”,urg:“urgent”,def:“심장 전기 전도계 이상으로 심박수나 리듬이 불규칙해지는 상태. 심방세동(A-fib)이 가장 흔하며 심실세동(VF)은 즉각 심정지를 유발한다.”,syms:[“두근거림 (심계항진)”,“어지럼증, 실신”,“흉통, 호흡곤란”,“VF/무맥성 VT: 무반응·맥박없음”],nursing:[“12-lead ECG + 지속 심전도 모니터링”,“심첨부 vs 요골동맥 맥박 동시 측정”,“항응고제 시 INR·출혈 징후 관찰”,“Defibrillator 상시 준비”,“VF 발견 즉시 CPR + 제세동”],labs:[“12-lead ECG”,“전해질 (K+, Mg2+)”,“TSH”,“INR”,“Holter monitor”],notes:“A-fib 항응고 여부는 CHA₂DS₂-VASc score로 결정. 맥박만으로 종류 알 수 없으므로 심전도 필수.”,related:[“심정지”,“뇌졸중”,“심방세동”,“와파린”,“INR”]},
-{id:4,cat:“cardiac”,kr:“고혈압”,en:“Hypertension”,abbr:“HTN”,urg:“normal”,def:“수축기 ≥140mmHg 또는 이완기 ≥90mmHg인 상태. 뇌졸중·심근경색·신부전의 주요 위험 인자. 대부분 무증상.”,syms:[“대부분 무증상 (침묵의 살인자)”,“두통 (후두부, 이른 아침)”,“고혈압 위기: 흉통·호흡곤란·의식 변화”],nursing:[“양측 팔 혈압 측정 비교 (15mmHg↑ 시 보고)”,“5분 안정 후 재측정 (백의 고혈압)”,“고혈압 위기 (>180/120) 즉시 보고”,“저염식이 및 생활습관 교육”],labs:[“Urinalysis (단백뇨)”,“BMP (Cr, K+)”,“Lipid panel”,“ECG (LVH)”],notes:“고혈압 위기 시 첫 1시간에 25%만 감소 — 너무 빠른 강압은 허혈 발생 위험.”,related:[“뇌졸중”,“신부전”,“심근경색”,“DASH식이”]},
-{id:5,cat:“cardiac”,kr:“심정지”,en:“Cardiac Arrest”,abbr:“CA / CPA”,urg:“critical”,def:“심장이 갑자기 박동을 멈춰 혈액 순환이 중단된 상태. 4~6분 내 뇌 손상, 10분 후 비가역적 손상 시작.”,syms:[“갑작스러운 무반응”,“무호흡 또는 사멸호흡 (gasping)”,“경동맥 맥박 없음”,“청색증”],nursing:[“즉시 CPR: 100-120회/분, 5-6cm, 완전 이완”,“2분마다 가슴압박 담당 교체”,“AED 즉시 적용”,“에피네프린 1mg IV 3-5분마다”,“기도 확보 및 환기”],labs:[“ABG (소생 후)”,“전해질”,“혈당”,“4H4T 원인 감별”],notes:“4H: Hypoxia·Hypovolemia·Hypothermia·H+산증 / 4T: Tension PTX·Tamponade·Toxins·Thrombosis.”,related:[“CPR”,“AED”,“부정맥”,“소생후증후군”]},
-{id:6,cat:“cardiac”,kr:“협심증”,en:“Angina Pectoris”,abbr:“AP / UA”,urg:“urgent”,def:“관상동맥 협착으로 심근에 산소 공급이 일시적으로 부족하여 발생하는 흉통. 안정형·불안정형·변이형으로 구분.”,syms:[“흉골 하부 압박·조이는 통증 (15분 이내)”,“운동·스트레스·식사 후 악화”,“쉬거나 NTG 후 완화”,“불안정형: 안정 시에도 발생”],nursing:[“통증 발생 즉시 활동 중단”,“NTG 설하 5분 간격 최대 3회”,“3회 후 지속 시 즉시 보고 (MI 가능성)”,“ECG 시행”],labs:[“12-lead ECG”,“Troponin (상승 시 NSTEMI)”,“CBC, Lipid panel”,“관상동맥조영술”],notes:“안정형 vs NSTEMI 차이: Troponin 상승 유무. 불안정형은 NSTEMI로 진행 가능 — 즉각 관리 필요.”,related:[“심근경색”,“NSTEMI”,“PCI”,“Nitroglycerin”]},
-{id:7,cat:“cardiac”,kr:“대동맥박리”,en:“Aortic Dissection”,abbr:“AD”,urg:“critical”,def:“대동맥 내막이 찢어져 혈액이 내막과 중막 사이로 유입되는 응급 상태. Stanford A형은 즉각적 수술이 필요.”,syms:[“갑작스럽고 극심한 흉통 (찢어지는 느낌, 등으로 방사)”,“양측 팔 혈압 차이 >20mmHg”,“신경학적 증상”,“맥박 결손”],nursing:[“양측 팔 혈압 비교 필수”,“IV access 2개·혈액 준비”,“SBP 100-120mmHg 목표 (Beta-blocker)”,“절대 안정”,“즉각적 수술팀 호출 (Type A)”],labs:[“CT 혈관조영술 (확진)”,“CBC, Type & Crossmatch”,“Troponin”,“ECG”],notes:“MI 의심 시 대동맥박리 배제 필수 — 혈전용해제는 절대 금기.”,related:[“심근경색”,“심장눌림증”,“고혈압”,“혈관수술”]},
-{id:8,cat:“cardiac”,kr:“심부정맥혈전증”,en:“Deep Vein Thrombosis”,abbr:“DVT”,urg:“urgent”,def:“주로 하지 심부정맥에 혈전이 형성된 상태. Virchow triad가 원인이며 폐색전증으로 진행 가능.”,syms:[“하지 부종 (편측성)”,“발적, 열감, 압통”,“Homans sign”,“PE 동반 시 호흡곤란”],nursing:[“하지 마사지 절대 금지”,“침상 안정, 환측 거상 (15-30도)”,“항응고제 시 INR·aPTT·출혈 모니터링”,“압박스타킹 (급성기 이후)”],labs:[“D-dimer (스크리닝)”,“하지정맥 Doppler US (확진)”,“Wells score”,“CT-PA (PE 의심 시)”],notes:“Wells score 2점↑: 중등도-고위험. D-dimer 음성이면 저위험군에서 DVT 배제 가능.”,related:[“폐색전증”,“항응고요법”,“헤파린”,“와파린”]},
-{id:9,cat:“respiratory”,kr:“폐렴”,en:“Pneumonia”,abbr:“PNA / CAP / HAP”,urg:“urgent”,def:“세균·바이러스·진균에 의해 폐 실질에 염증이 발생한 상태. 지역사회획득성(CAP)과 병원획득성(HAP)으로 구분.”,syms:[“발열·오한”,“기침 (화농성 객담)”,“흡기 시 흉막성 흉통”,“호흡곤란, SpO2 저하”,“청진: 수포음 (crackles)”],nursing:[“SpO2 94%↑ 유지”,“체위 변경 2시간마다”,“구강 위생 철저히”,“항생제 투여 전 혈액배양 2세트”,“CURB-65 평가”],labs:[“CBC, CRP, Procalcitonin”,“Blood culture ×2”,“Sputum C&S”,“Chest X-ray”,“ABG”],notes:“CURB-65: 혼돈(1)+BUN>19(1)+RR≥30(1)+SBP<90(1)+연령≥65(1). 2점↑ 입원.”,related:[“ARDS”,“패혈증”,“흡인성폐렴”,“결핵”]},
-{id:10,cat:“respiratory”,kr:“만성폐쇄성폐질환”,en:“COPD”,abbr:“COPD”,urg:“normal”,def:“흡연 등으로 인한 만성 기도 염증으로 폐기능이 비가역적으로 감소하는 진행성 질환. FEV1/FVC <0.70이 진단 기준.”,syms:[“만성 기침 (특히 아침)”,“화농성 객담”,“점진적 호흡곤란”,“천명음, 통형 흉곽”],nursing:[“금연 교육 (가장 중요)”,“흡입기 사용법 교육”,“산소 2-3L/min (저산소 호흡구동 주의)”,“독감·폐렴구균 예방접종”],labs:[“PFT: FEV1/FVC <0.70”,“ABG”,“Chest X-ray/CT”,“CBC”],notes:“COPD 악화 시 SpO2 88-92% 목표 — 고농도 산소 투여 시 CO2 저류 위험.”,related:[“기흉”,“천식”,“폐암”,“ARDS”]},
-{id:11,cat:“respiratory”,kr:“폐색전증”,en:“Pulmonary Embolism”,abbr:“PE”,urg:“critical”,def:“하지 심부정맥혈전이 폐동맥을 막아 폐혈류가 차단되는 응급 상태. 대량 PE는 우심부전과 쇼크 유발.”,syms:[“갑작스러운 호흡곤란 (안정 시에도)”,“흉막성 흉통 (흡기 시 악화)”,“빈맥 (가장 흔한 징후)”,“객혈”,“DVT 증상 동반 (약 30%)”],nursing:[“즉각적인 고농도 산소 공급”,“Wells score 평가 보조”,“항응고 시작 전 출혈 금기 확인”,“절대 침상 안정”,“하지 마사지 금지”],labs:[“D-dimer”,“CT-PA (확진)”,“Troponin, BNP”,“ABG”,“ECG (S1Q3T3)”],notes:“CT-PA 가능하면 D-dimer만으로 결정하지 말 것. ECG S1Q3T3는 민감도 낮지만 대량 PE 시사.”,related:[“DVT”,“항응고요법”,“혈전용해술”,“우심부전”]},
-{id:12,cat:“respiratory”,kr:“기흉”,en:“Pneumothorax”,abbr:“PTX”,urg:“urgent”,def:“흉막강 내로 공기가 유입되어 폐가 허탈(collapse)되는 상태. 자연기흉과 외상성, 긴장성 기흉으로 구분.”,syms:[“갑작스러운 날카로운 흉통”,“호흡곤란”,“환측 호흡음 소실”,“긴장성: 기관 편위·혈압 저하·경정맥 확장”],nursing:[“긴장성: 즉각 바늘 감압술 (2번째 늑간)”,“흉관 삽입 후 air leak·파동 관찰”,“흉관 유닛 항상 침대 아래 유지”,“심호흡·기침 격려”],labs:[“Chest X-ray”,“ABG”,“SpO2”,“CT (복잡성)”],notes:“긴장성 기흉은 X-ray 기다리지 않고 임상 진단 즉시 감압 — 분초를 다투는 응급.”,related:[“COPD”,“흉관삽입”,“혈흉”,“기계적환기”]},
-{id:13,cat:“respiratory”,kr:“급성호흡곤란증후군”,en:“ARDS”,abbr:“ARDS”,urg:“critical”,def:“폐 손상으로 산소화가 심각하게 저하되는 증후군. PaO2/FiO2 <300이 기준이며 폐렴·패혈증·흡인이 주요 원인.”,syms:[“급격히 악화되는 호흡곤란”,“고농도 산소에도 SpO2 개선 안 됨”,“청진: 광범위한 수포음”,“X-ray: 양측성 음영 (whiteout)”],nursing:[“폐 보호 환기: TV 6mL/kg, 적정 PEEP”,“복와위 (prone) 16-18시간/일”,“수분 Conservative 관리”,“VAP 예방 번들”,“진정 RASS -1~-2 목표”],labs:[“ABG (P/F ratio)”,“Chest X-ray/CT”,“혈액배양”,“Lactate”,“Echo (심인성 배제)”],notes:“P/F ratio = PaO2 ÷ FiO2. 경증 200-300, 중등 100-200, 중증 <100.”,related:[“패혈증”,“폐렴”,“기계적환기”,“복와위”,“ECMO”]},
-{id:14,cat:“respiratory”,kr:“결핵”,en:“Tuberculosis”,abbr:“TB”,urg:“urgent”,def:“Mycobacterium tuberculosis에 의한 만성 감염병. 비말핵으로 전파되며 폐를 주로 침범.”,syms:[“3주↑ 지속 기침”,“야간 발한”,“발열”,“체중 감소”,“객혈 (cavitary TB)”],nursing:[“음압격리실, N95 마스크 (의료진)”,“환자에게 외과용 마스크”,“DOTS 교육 (최소 6개월)”,“접촉자 조사·보건소 신고 (제2급)”,“간독성 모니터링”],labs:[“AFB 도말·배양 (3일 연속)”,“TB-PCR”,“Chest X-ray/CT”,“IGRA 또는 TST”,“LFT”],notes:“약제 내성 결핵(MDR-TB) 증가 추세. 약제 순응도가 치료의 핵심.”,related:[“잠복결핵”,“MDR-TB”,“폐렴”,“BCG”]},
-{id:15,cat:“gi”,kr:“췌장염”,en:“Pancreatitis”,abbr:“AP / CP”,urg:“urgent”,def:“췌장 효소의 자가소화로 염증이 발생하는 질환. 담석과 음주가 전체의 80%.”,syms:[“심와부/좌상복부 극심한 통증 (등으로 방사)”,“오심·구토 (구토 후에도 지속)”,“발열, 복부 팽만”,“Cullen sign, Grey Turner sign (중증)”],nursing:[“초기 NPO (경장영양 조기 시작 권고)”,“IV fluid 적극 공급 (250-500mL/hr)”,“통증 조절”,“혈당 모니터링 4-6시간마다”,“Ranson score, APACHE II 평가”],labs:[“Amylase, Lipase (정상 3배↑)”,“CBC, CMP, LFT”,“CT 복부 (Balthazar)”,“Abdominal US (담석)”],notes:“Lipase가 Amylase보다 민감도·특이도 높음. 진단: 복통+효소 3배↑+영상 소견 중 2가지↑.”,related:[“담낭염”,“담석”,“가성낭종”,“췌장암”]},
-{id:16,cat:“gi”,kr:“위장관출혈”,en:“GI Bleeding”,abbr:“UGIB / LGIB”,urg:“critical”,def:“상부(식도~십이지장) 또는 하부(공장~항문) 위장관에서 발생하는 출혈. 소화성 궤양이 UGIB의 가장 흔한 원인.”,syms:[“토혈 (선홍색 또는 커피찌꺼기)”,“흑색변 (melena: UGIB)”,“혈변 (hematochezia: LGIB)”,“저혈압·빈맥 (쇼크)”],nursing:[“즉시 V/S 측정·쇼크 확인”,“IV access 2개 (16-18G)·수액·수혈 준비”,“내시경 전 NPO”,“변 성상·색·양 기록”,“PPI IV (UGIB 시)”],labs:[“CBC (Hgb 연속)”,“BMP, PT/INR”,“Type & Crossmatch”,“BUN/Cr >20 → UGIB 시사”,“Stool guaiac”],notes:“Hgb는 급성 출혈 초기엔 정확히 반영 안 됨. BUN/Cr ratio는 상부 출혈 감별에 유용.”,related:[“소화성궤양”,“식도정맥류”,“간경화”,“대장암”]},
-{id:17,cat:“gi”,kr:“간경화”,en:“Liver Cirrhosis”,abbr:“LC”,urg:“normal”,def:“만성 간 손상으로 정상 간세포가 섬유화 조직으로 대체되어 간 기능이 비가역적으로 저하되는 질환.”,syms:[“황달, 복수, 하지 부종”,“출혈 경향 (PT 연장)”,“간성뇌증 (혼돈, 수면 역전)”,“거미상혈관종, 손바닥 홍반”],nursing:[“복위·체중 매일 측정”,“출혈 징후 관찰 (토혈, 흑색변)”,“저염식이 (2g/일)”,“Lactulose 후 대변 3-4회/일 목표”,“정신 상태 변화 모니터링”],labs:[“LFT, Bilirubin”,“Albumin, PT/INR”,“NH3 (암모니아)”,“CBC (범혈구 감소)”,“Abdominal US+Doppler”],notes:“Child-Pugh, MELD score로 중증도 평가. MELD ≥15: 간이식 대기 고려.”,related:[“간부전”,“식도정맥류”,“간성뇌증”,“간세포암”]},
-{id:18,cat:“gi”,kr:“급성충수염”,en:“Appendicitis”,abbr:“Appy”,urg:“urgent”,def:“충수 내강이 막혀 염증이 발생하는 상태. 천공 시 복막염으로 진행.”,syms:[“배꼽 주위 통증 → 우하복부 (McBurney) 이동”,“오심·구토, 미열”,“반발 압통”,“Rovsing sign, Psoas sign”],nursing:[“통증 부위 변화 관찰”,“수술 전 NPO, IV access”,“예방적 항생제”,“체온 모니터링 (천공 시 고열)”],labs:[“CBC (WBC↑)”,“CRP”,“CT 복부 (확진)”,“β-hCG (가임기 여성)”],notes:“Alvarado score 7점↑: 수술 고려. 임산부는 충수 위치 상방 이동으로 통증 위치 다를 수 있음.”,related:[“복막염”,“담낭염”,“자궁외임신”,“장폐색”]},
-{id:19,cat:“gi”,kr:“간성뇌증”,en:“Hepatic Encephalopathy”,abbr:“HE”,urg:“urgent”,def:“간부전으로 암모니아 등 독성 물질이 뇌에 축적되어 신경정신 증상이 발생하는 상태.”,syms:[“수면 장애 (낮밤 역전) — Grade 1”,“혼란·지남력 장애 — Grade 2”,“졸림·반응 저하 — Grade 3”,“혼수 — Grade 4”,“asterixis (flapping tremor)”],nursing:[“정신 상태 변화 지속 평가”,“낙상 예방”,“Lactulose: 대변 3-4회/일 목표”,“유발 인자 교정 (감염·변비·탈수)”,“과도한 단백질 제한 금지”],labs:[“NH3”,“LFT, PT/INR”,“BMP”,“Blood culture, U/A”,“CT 뇌”],notes:“암모니아 수치와 증상 심각도가 항상 일치하지 않음 — 임상 증상으로 판단이 더 중요.”,related:[“간경화”,“간부전”,“복막염”,“Lactulose”]},
-{id:20,cat:“neuro”,kr:“뇌졸중”,en:“Stroke / CVA”,abbr:“CVA / TIA”,urg:“critical”,def:“뇌혈관 막힘(허혈성 80%)이나 터짐(출혈성 20%)으로 뇌 기능이 갑자기 손상되는 질환. ‘Time is Brain.’”,syms:[“갑작스러운 편측 마비·감각 이상”,“언어 장애 (실어증, 구음 장애)”,“시야 장애”,“갑작스러운 심한 두통 (출혈성)”,“균형 장애·보행 불능”],nursing:[“BEFAST 평가: Balance·Eyes·Face·Arm·Speech·Time”,“증상 발생 시간 정확히 확인”,“tPA 조건 확인 (4.5시간 이내)”,“HOB 허혈성 0도, 두개내압↑ 시 30도”,“흡인 예방 (삼킴 평가 전 NPO)”],labs:[“CT 뇌 (15분 이내)”,“MRI/DWI”,“CBC, PT/INR”,“혈당”,“심전도 (AF 감별)”],notes:“tPA는 출혈성, SBP>185/DBP>110, 최근 수술력 시 금기. Wake-up stroke: DWI-FLAIR mismatch로 결정.”,related:[“TIA”,“두개내출혈”,“tPA”,“AF”]},
-{id:21,cat:“neuro”,kr:“뇌수막염”,en:“Meningitis”,abbr:“BM / ABM”,urg:“critical”,def:“뇌와 척수를 감싸는 수막에 세균·바이러스·진균이 감염되어 염증이 발생한 상태. 세균성이 가장 치명적.”,syms:[“3주징: 두통+발열+경부 경직”,“빛 공포증, 소리 공포증”,“의식 변화”,“자반증·점상출혈 (수막구균)”],nursing:[“비말 격리 (세균성: 항생제 후 24시간)”,“N95 마스크 착용”,“항생제 즉각 투여 (요추천자 기다리지 않고)”,“두개내압 상승 징후 모니터링”,“Kernig·Brudzinski 징후 사정”],labs:[“요추천자 (CSF 분석)”,“CT 뇌 (천자 전)”,“Blood culture ×2”,“CBC, CRP, PCT”,“PCR”],notes:“세균성 CSF: 탁함, WBC↑↑(다형핵), 단백↑, 당↓. 바이러스성: 맑음, WBC↑(단핵구), 당 정상.”,related:[“뇌염”,“뇌농양”,“패혈증”,“두개내압상승”]},
-{id:22,cat:“neuro”,kr:“뇌전증”,en:“Epilepsy / Seizure”,abbr:“Sz / SE”,urg:“urgent”,def:“뇌 신경세포의 비정상적 과도한 방전으로 경련·의식 변화가 반복되는 만성 신경계 질환.”,syms:[“강직-간대 발작”,“의식 소실”,“발작 후 기면 (Todd 마비)”,“자동증 (입술 씹기, 손 비비기)”,“실금·혀 깨물기”],nursing:[“발작 중 낙상 예방”,“기도 확보 — 입 안 물건 절대 금지”,“5분↑ 지속 시 Lorazepam IV”,“발작 양상·지속 시간 기록”,“산소 공급, IV access”],labs:[“EEG”,“MRI 뇌”,“혈당 (저혈당 배제)”,“전해질”,“항경련제 혈중 농도”],notes:“Status epilepticus: 5분↑ 경련. Lorazepam → Fosphenytoin → Phenobarbital 순.”,related:[“Status epilepticus”,“뇌종양”,“저혈당”,“항경련제”]},
-{id:23,cat:“neuro”,kr:“섬망”,en:“Delirium”,abbr:“DL”,urg:“urgent”,def:“급성으로 발생하는 주의력 장애와 의식 혼탁을 특징으로 하는 가역적 신경정신과적 증후군. 노인 입원 환자에서 흔함.”,syms:[“갑작스러운 혼돈 (수시간~수일 내)”,“주의력·지남력 장애”,“과활동형 (흥분) 또는 저활동형 (기면)”,“수면-각성 주기 이상”],nursing:[“원인 교정 (감염·약물·전해질·저산소)”,“재지남력 제공 (날짜·장소·사람)”,“환경: 낮 밝게·밤 어둡게”,“CAM 도구로 매일 평가”,“신체 억제대 최소화”],labs:[“CBC, BMP”,“U/A + Culture (UTI 가장 흔함)”,“Blood culture”,“TSH”,“CT 뇌”],notes:“저활동형 섬망은 조용히 기면 상태라 간과되기 쉬움. 인지 기능 저하 환자는 위험 3-5배.”,related:[“치매”,“패혈증”,“저산소증”,“ICU섬망”]},
-{id:24,cat:“neuro”,kr:“두개내압 상승”,en:“Increased ICP”,abbr:“↑ICP”,urg:“critical”,def:“두개강 내 압력 >20mmHg인 상태. 뇌부종·혈종·수두증이 원인이며 뇌탈출로 사망 가능.”,syms:[“두통 (이른 아침, 기침 시 악화)”,“분출성 구토”,“의식 저하”,“쿠싱 반사: 고혈압+서맥+불규칙 호흡”,“동공 불균등 또는 고정 확장”],nursing:[“HOB 30도 유지”,“경추 중립 유지”,“Mannitol IV 또는 3% NaCl”,“발열 즉시 교정”,“PaCO2 35-40 유지 (과호흡은 최후 수단)”],labs:[“CT 뇌 (즉시)”,“ICP 모니터 (EVD)”,“ABG (PaCO2)”,“BMP (Na+)”],notes:“Cushing triad(고혈압+서맥+불규칙 호흡): 뇌탈출 임박 → 즉각 신경외과 호출.”,related:[“뇌졸중”,“뇌수막염”,“수두증”,“GCS”]},
-{id:25,cat:“msk”,kr:“골절”,en:“Fracture”,abbr:“Fx”,urg:“urgent”,def:“외력·병적 원인·반복 피로로 뼈의 연속성이 끊어진 상태. 개방골절은 감염 위험으로 즉각 처치 필요.”,syms:[“국소 통증·압통”,“부종, 혈종”,“변형 (비정상적 각도)”,“기능 상실”,“염발음 (Crepitus)”],nursing:[“5P 사정: Pain·Pallor·Pulselessness·Paresthesia·Paralysis”,“개방골절: 멸균 드레싱·예방적 항생제”,“부목 고정 후 원위부 순환 재확인”,“구획증후군 감시”],labs:[“X-ray (2방향)”,“CT (복잡·척추)”,“CBC”,“PT/INR”],notes:“고령자 고관절 골절: 1년 내 사망률 20-30%. 수술 48시간 이내 시행 시 예후 개선.”,related:[“구획증후군”,“DVT”,“골수염”,“골다공증”]},
-{id:26,cat:“msk”,kr:“구획증후군”,en:“Compartment Syndrome”,abbr:“CS”,urg:“critical”,def:“근막으로 싸인 구획 내 압력이 상승하여 혈류가 차단되는 상태. 지연 시 영구적 근육 괴사(Volkmann 구축).”,syms:[“극심한 통증 (수동적 신전 시 악화)”,“창백, 맥박 감소/소실”,“감각 이상”,“운동 마비”],nursing:[“즉시 의사 보고”,“부목·석고붕대 즉시 제거”,“사지 심장 높이 유지 (높이 올리지 않음)”,“구획 압력 측정 (>30mmHg 시 수술)”,“근막절개술 준비”],labs:[“구획 내 압력 측정”,“CK (근손상)”,“Myoglobin”,“소변 색 (적갈색)”],notes:“가장 흔한 부위: 전경부. 진단 지연 = 불가역적 손상.”,related:[“골절”,“근막절개술”,“횡문근융해”,“급성신손상”]},
-{id:27,cat:“msk”,kr:“욕창”,en:“Pressure Injury”,abbr:“PI / PU”,urg:“normal”,def:“지속적인 압력·마찰·전단력에 의해 피부 및 피하조직이 손상된 상태. Stage 1~4, 미분류, DTI.”,syms:[“Stage 1: 압박 후 소실 안 되는 발적”,“Stage 2: 수포, 표피 손실”,“Stage 3: 피하지방 노출”,“Stage 4: 근육/건/뼈 노출”,“삼출물, 악취”],nursing:[“Braden scale로 위험도 평가 (18점↓ 고위험)”,“2시간마다 체위 변경 (핵심)”,“압력 완화 매트리스”,“피부 보습·청결”,“영양: 단백질 1.2-1.5g/kg/일”],labs:[“Albumin, Prealbumin”,“CBC, 혈당”,“Wound culture (감염 시)”],notes:“발뒤꿈치 욕창 위험 가장 높음. 부유 발뒤꿈치(float the heel)로 압력 완전 제거.”,related:[“당뇨발”,“골수염”,“영양지원”,“Braden scale”]},
-{id:28,cat:“msk”,kr:“류마티스관절염”,en:“Rheumatoid Arthritis”,abbr:“RA”,urg:“normal”,def:“활막의 자가면역 염증으로 관절이 파괴되는 전신 염증성 질환. 손·발의 소관절을 대칭적으로 침범.”,syms:[“대칭성 소관절 통증·부종·열감”,“조조강직 (아침에 1시간↑)”,“피로, 발열, 체중 감소”,“관절 변형 (척골편위, 백조목)”],nursing:[“관절 보호 원칙 교육”,“급성기: 냉찜질 / 완화기: 온찜질+운동”,“MTX: 간독성 모니터링, 엽산 보충”,“생물학적 제제 전 결핵 검사”],labs:[“RF”,“Anti-CCP”,“ESR, CRP”,“CBC, LFT, Cr”,“X-ray 손/발”],notes:“Anti-CCP는 조기 RA에도 양성 — 조기 진단에 유용. 조기 공격적 치료(Treat to Target)가 핵심.”,related:[“SLE”,“통풍”,“건선관절염”,“Methotrexate”]},
-{id:29,cat:“endocrine”,kr:“당뇨병성케톤산증”,en:“Diabetic Ketoacidosis”,abbr:“DKA”,urg:“critical”,def:“인슐린 절대 결핍으로 케톤체가 축적되어 대사성 산증이 발생하는 응급 상태. 주로 제1형 당뇨에서 발생.”,syms:[“구역·구토·복통”,“다뇨·다음”,“탈수 (피부 탄력 저하)”,“Kussmaul 호흡”,“과일 냄새 나는 호기 (아세톤)”],nursing:[“IV fluid: 0.9% NaCl 1L/hr”,“인슐린 Regular 0.1unit/kg/hr IV”,“K+ <3.5이면 인슐린 시작 전 교정”,“혈당 시간마다 측정 (50-75mg/dL/hr 감소)”,“혈당 200↓ 시 D/W 병행”],labs:[“Glucose (500-800+ mg/dL)”,“Ketone”,“ABG (pH<7.3, HCO3-<15)”,“BMP (K+, Na+)”,“Anion gap”],notes:“DKA 해소: pH>7.3, HCO3->15, Anion gap 정상화. 혈당 정상화는 DKA 해소 기준 아님.”,related:[“HHS”,“저혈당”,“인슐린”,“대사성산증”]},
-{id:30,cat:“endocrine”,kr:“저혈당증”,en:“Hypoglycemia”,abbr:“Hypoglycemia”,urg:“urgent”,def:“혈당 <70mg/dL인 상태. 인슐린·설폰요소제 사용, 금식, 간부전 환자에서 흔히 발생.”,syms:[“발한, 떨림, 빈맥 (교감신경 — 조기)”,“두통, 어지럼증, 배고픔”,“혼돈, 집중력 저하”,“경련, 의식 소실 (중증)”],nursing:[“의식 있을 시: 15-15 규칙 (속효 탄수화물 15g + 15분 후 재측정)”,“의식 없을 시: 50% D/W 50mL IV 또는 Glucagon 1mg IM”,“15분 후 재측정, 목표 >100mg/dL”,“원인 약물 확인 및 용량 조절”],labs:[“혈당 즉시 POCT”,“반복 측정”,“인슐린, C-peptide”,“LFT (간부전)”],notes:“설폰요소제에 의한 저혈당은 반감기가 길어 재발 가능 — D/W 지속 주입 또는 Octreotide 고려.”,related:[“DKA”,“당뇨병”,“인슐린”,“Glucagon”]},
-{id:31,cat:“endocrine”,kr:“갑상선중독증”,en:“Thyroid Storm”,abbr:“TS”,urg:“critical”,def:“갑상선 호르몬이 급격히 과다 분비되는 생명을 위협하는 응급 상태. 감염·수술·요오드 조영제가 유발 인자.”,syms:[“고열 (>38.5°C, 종종 40°C↑)”,“극심한 빈맥 (빈맥성 부정맥)”,“고혈압 → 심부전”,“심한 흥분, 혼돈”,“오심·구토·설사”],nursing:[“즉각 ICU 이송”,“냉담요·냉각 패드 (아스피린 금기)”,“Beta-blocker (빈맥, 발열 조절)”,“PTU 투여 후 1시간 뒤 Lugol 요오드 (순서 엄수)”,“Dexamethasone (T4→T3 전환 억제)”],labs:[“TSH (↓↓, 거의 0)”,“Free T4, T3 (↑↑)”,“CBC, BMP”,“ECG”,“Blood culture”],notes:“PTU → 요오드 → 스테로이드 순서 반드시 준수. Burch-Wartofsky score 45점↑: 갑상선폭풍.”,related:[“갑상선기능항진증”,“Graves병”,“PTU”,“갑상선절제술”]},
-{id:32,cat:“endocrine”,kr:“당뇨병”,en:“Diabetes Mellitus”,abbr:“DM (T1/T2)”,urg:“normal”,def:“인슐린 분비 부족(제1형) 또는 인슐린 저항성(제2형)으로 만성 고혈당 상태가 지속되는 대사 질환.”,syms:[“다음·다뇨·다식 (3다 증상)”,“체중 감소 (T1DM)”,“피로감, 시야 흐림”,“잦은 감염 (피부, 요로)”,“말초 감각 이상”],nursing:[“혈당 모니터링 교육 (식전, 식후 2시간)”,“인슐린 자가주사 교육 (부위 rotation)”,“발 관리 교육 (매일 검진, 맨발 금지)”,“HbA1c 목표 <7%”],labs:[“공복혈당 ≥126mg/dL”,“HbA1c ≥6.5%”,“OGTT”,“Urinalysis (단백뇨)”,“Lipid panel, Cr”],notes:“당뇨 발: 신경병증+혈관병증+감염 복합. ABI <0.9: 말초동맥질환. 연간 안과·신장·발 검진 필수.”,related:[“DKA”,“HHS”,“저혈당”,“당뇨망막병증”,“당뇨신증”]},
-{id:33,cat:“renal”,kr:“급성신손상”,en:“Acute Kidney Injury”,abbr:“AKI”,urg:“urgent”,def:“48시간 이내 혈청 Creatinine 0.3mg/dL↑ 또는 7일 이내 기저치의 1.5배↑. 혈류 감소·신독성 약물·요로 폐색이 주요 원인.”,syms:[“소변량 감소 (핍뇨 <400mL/일)”,“부종 (전신, 폐부종)”,“전해질 이상 (K+↑ → 부정맥)”,“요독 증상: 오심·구토·피로”],nursing:[“I&O (시간당 소변량 <0.5mL/kg 시 보고)”,“체중 매일 측정”,“신독성 약물 중단 (NSAIDs, Aminoglycoside)”,“K+↑ 시 ECG 모니터링”,“투석 적응증: AEIOU”],labs:[“BMP (Cr, BUN, K+)”,“Urinalysis + 소변 침사”,“FeNa”,“신장 US”,“CBC”],notes:“조영제 신독성 예방: 사전 수액 공급. AKI 시 Metformin, NSAIDs, ACEI/ARB 일시 중단 고려.”,related:[“만성신부전”,“투석”,“횡문근융해”]},
-{id:34,cat:“renal”,kr:“요로감염”,en:“UTI / CAUTI”,abbr:“UTI / CAUTI”,urg:“normal”,def:“방광·요도·신우에 세균이 감염된 상태. E. coli가 가장 흔한 원인균. 카테터 관련 요로감염(CAUTI)은 병원 감염의 주요 원인.”,syms:[“배뇨통 (dysuria)”,“빈뇨, 절박뇨”,“탁한 소변, 혈뇨”,“신우신염: 발열·오한·CVA tenderness”],nursing:[“카테터 적응증 재평가 (불필요 시 즉시 제거)”,“배액백 항상 방광 아래”,“수분 섭취 1.5-2L/일 권장”,“앞에서 뒤로 닦기 교육”],labs:[“Urinalysis (WBC, nitrite)”,“Urine C&S (항생제 전)”,“CBC, CRP (신우신염)”,“혈액배양 (균혈증 의심)”],notes:“무증상 세균뇨는 임산부와 비뇨기과 시술 전 외엔 치료 불필요. CAUTI 예방: 카테터 최소화.”,related:[“신우신염”,“CAUTI”,“방광염”,“급성신손상”]},
-{id:35,cat:“hematology”,kr:“패혈증”,en:“Sepsis”,abbr:“Sepsis / Septic Shock”,urg:“critical”,def:“감염에 대한 조절되지 않는 숙주 반응으로 장기 기능 장애가 발생하는 상태. Septic shock: 수액 후에도 MAP <65mmHg + 젖산 >2mmol/L.”,syms:[“발열(>38°C) 또는 저체온(<36°C)”,“빈맥(>90회/분), 빈호흡(>20회/분)”,“의식 변화”,“핍뇨, 황달, 반상출혈”],nursing:[“1시간 번들: 혈액배양→항생제→수액”,“30mL/kg 결정질 수액 볼루스”,“광범위 항생제 1시간 이내”,“젖산 측정 (>2: 위험)”,“Norepinephrine: MAP 65mmHg↑ 목표”],labs:[“혈액배양 ×2 (항생제 전)”,“Lactate”,“CBC, BMP, LFT”,“Procalcitonin, CRP”,“응고 검사 (DIC 감시)”],notes:“qSOFA: 의식변화+RR≥22+SBP≤100 → 위험 신호. 항생제 1시간 지연 시 사망률 7-10% 상승.”,related:[“패혈성쇼크”,“DIC”,“ARDS”,“폐렴”]},
-{id:36,cat:“hematology”,kr:“파종혈관내응고”,en:“DIC”,abbr:“DIC”,urg:“critical”,def:“전신적으로 응고가 활성화되어 혈전과 출혈이 동시에 발생하는 증후군. 패혈증·산과적 응급·외상이 주요 원인.”,syms:[“주사 부위·점막 비정상 출혈”,“미세혈관 혈전: 피부 괴사”,“자반증, 점상출혈”,“혈압 저하, 빈맥”],nursing:[“출혈 부위 즉각 압박”,“IV access·수혈 준비 (FFP, 혈소판, Cryoprecipitate)”,“근육주사 금지”,“원인 질환 치료가 최우선”],labs:[“PT/INR ↑↑, aPTT ↑↑”,“Fibrinogen ↓ (<150mg/dL)”,“D-dimer ↑↑”,“혈소판 ↓”,“말초혈액도말 (schistocyte)”],notes:“DIC 치료는 기저 원인 교정이 근본. 성분수혈은 보조적 치료.”,related:[“패혈증”,“산과적응급”,“수혈”,“FFP”]},
-{id:37,cat:“hematology”,kr:“아나필락시스”,en:“Anaphylaxis”,abbr:“Anaphylaxis”,urg:“critical”,def:“항원에 대한 급격하고 전신적인 과민 반응. 약물·식품·벌독이 흔한 원인. 에피네프린이 1차 치료제.”,syms:[“두드러기, 홍조, 부종 (피부)”,“인후 부종, 천명음, 호흡곤란”,“저혈압, 빈맥, 쇼크”,“오심·구토·복통”],nursing:[“에피네프린 0.3-0.5mg IM (대퇴 외측) 즉시”,“원인 물질 즉시 제거”,“고농도 산소 공급”,“IV access·수액 볼루스”,“5-15분 후 반복 가능”],labs:[“임상 진단 우선 — 검사 기다리지 않음”,“Serum tryptase (1-2시간 후)”,“ABG, ECG”],notes:“에피네프린을 항히스타민제나 스테로이드로 대체 또는 지연 금지. 이중상 반응: 소실 후 4-8시간 관찰.”,related:[“알레르기”,“에피네프린”,“쇼크”,“EpiPen”]},
-{id:38,cat:“hematology”,kr:“빈혈”,en:“Anemia”,abbr:“Anemia”,urg:“normal”,def:“혈색소 농도가 정상 이하인 상태. 남성 <13g/dL, 여성 <12g/dL.”,syms:[“피로감, 운동 불내성”,“창백 (피부·결막·손바닥)”,“빈맥, 두근거림”,“두통, 어지럼증”],nursing:[“활동 내성 평가·에너지 절약 교육”,“철분제: 공복 또는 Vit C와 함께, 차/커피 2시간 전후 금지”,“수혈 시: 처음 15분 집중 관찰”,“낙상 예방 (기립성 어지럼증)”],labs:[“CBC (Hgb, MCV)”,“혈청 철·TIBC·Ferritin”,“Reticulocyte count”,“Vit B12, Folate”],notes:“MCV로 분류: 소구성(철결핍, 지중해빈혈), 정구성(만성질환, 급성출혈), 대구성(B12/Folate결핍).”,related:[“철결핍성빈혈”,“악성빈혈”,“수혈”,“위장관출혈”]},
-{id:39,cat:“hospital”,kr:“금식”,en:“Nothing by Mouth”,abbr:“NPO”,urg:“normal”,def:“환자에게 구강으로 어떤 물질도 섭취하지 않도록 지시하는 상태.”,syms:[],nursing:[“금식 시작 시간 명확히 확인·기록”,“NPO 표지판 부착 및 환자 교육”,“IV fluid로 수분·전해질 공급”,“구강 간호 (거즈로 수분)”,“현대 지침: 맑은 액체는 수술 2시간 전까지 허용”],labs:[“해당 시술에 따라 다름”],notes:“과거의 ‘자정부터 금식’은 구식. 맑은 액체 수술 2시간 전까지 허용 — 탈수 예방.”,related:[“연하장애”,“흡인성폐렴”,“수술전간호”,“경장영양”]},
-{id:40,cat:“hospital”,kr:“활력징후”,en:“Vital Signs”,abbr:“V/S”,urg:“normal”,def:“생명 유지의 기본 지표. 혈압(BP)·맥박(HR)·호흡(RR)·체온(BT)·산소포화도(SpO2)·통증(Pain) 포함.”,syms:[],nursing:[“정상: BP 90-139/60-89 | HR 60-100 | RR 12-20 | BT 36.5-37.5°C | SpO2 ≥94%”,“측정 전 5분 이상 안정”,“양측 팔 혈압 측정 (첫 방문 또는 의심 시)”,“NEWS/EWS 활용”],labs:[“기본 V/S + ABG (SpO2 낮을 때)”],notes:“NEWS 7점↑: 즉각 의사 호출·ICU 이송 고려. 이상 소견 발견 시 즉각 보고가 간호사의 의무.”,related:[“EWS”,“NEWS”,“쇼크”,“SpO2”]},
-{id:41,cat:“hospital”,kr:“섭취 및 배설량”,en:“Intake and Output”,abbr:“I&O”,urg:“normal”,def:“환자의 24시간 수분 섭취량(경구·IV·비위관)과 배설량(소변·대변·구토·배액)을 측정·기록하는 것.”,syms:[],nursing:[“소변량 <0.5mL/kg/hr 즉시 보고”,“눈금 있는 계량컵으로 정확히 측정”,“불감 손실 500-800mL/일 고려”,“24시간 합산·이전 24시간 비교”],labs:[“BMP (Na+, Cr, BUN)”,“소변 비중”,“체중 매일 동일 시간”],notes:“체중 1kg 변화 ≈ 수분 1L 변화. I&O 기록과 체중 변화를 함께 비교하면 가장 신뢰.”,related:[“급성신손상”,“심부전”,“탈수”,“이뇨제”]},
-{id:42,cat:“hospital”,kr:“글라스고 혼수 척도”,en:“Glasgow Coma Scale”,abbr:“GCS”,urg:“normal”,def:“의식 수준을 객관적으로 측정하는 도구. 눈 뜨기(E)·언어(V)·운동(M) 3가지, 3-15점.”,syms:[],nursing:[“E: 자발 4·명령 3·통증 2·없음 1”,“V: 지남력 5·혼돈 4·부적절 3·이해불가 2·없음 1”,“M: 명령 수행 6·통증 국소화 5·회피 4·굴곡 3·신전 2·없음 1”,“GCS ≤8: 기관삽관 고려”],labs:[“CT 뇌”,“혈당”,“ABG”,“독성 물질 검사”],notes:“GCS는 변화 추세가 중요. GCS ≤8을 기관삽관 기준으로 많이 사용.”,related:[“의식사정”,“두개내압상승”,“뇌졸중”,“AVPU”]},
-{id:43,cat:“hospital”,kr:“동맥혈가스분석”,en:“Arterial Blood Gas”,abbr:“ABG”,urg:“normal”,def:“동맥혈의 산소화·환기·산염기 상태를 평가하는 검사.”,syms:[],nursing:[“채혈 부위: 요골동맥 (1차), Allen test 먼저”,“채혈 후 5분↑ 압박”,“공기 방울 제거 후 얼음에 넣어 즉시 이송”,“채혈 전 FiO2·산소 투여량 기록 필수”],labs:[“정상: pH 7.35-7.45 | PaO2 80-100 | PaCO2 35-45 | HCO3- 22-26”,“P/F ratio = PaO2 ÷ FiO2 (정상 ≥300)”],notes:“ABG 해석 순서: (1)pH → (2)PaCO2 (호흡성?) → (3)HCO3- (대사성?) → (4)보상 여부.”,related:[“ARDS”,“COPD”,“DKA”,“기계적환기”]},
-{id:44,cat:“hospital”,kr:“DNR”,en:“Do Not Resuscitate”,abbr:“DNR / DNAR”,urg:“normal”,def:“심정지·호흡 정지 시 CPR을 시행하지 않겠다는 환자 또는 법적 대리인의 사전 결정. 국내에서는 ‘연명의료계획서’로 제도화.”,syms:[],nursing:[“DNR 동의서 확인·차트 보관”,“전자 차트·침대 헤드에 명확히 표시”,“코드 상황 시 CPR 시행하지 않음”,“DNR ≠ 치료 포기 (완화 치료는 지속)”,“인계 시 반드시 전달”],labs:[“해당 없음”],notes:“DNR은 아무것도 하지 않음이 아님. 증상 완화·존엄한 임종·가족 지지는 계속됨.”,related:[“연명의료계획서”,“완화치료”,“호스피스”]},
-{id:45,cat:“hospital”,kr:“SBAR”,en:“Situation Background Assessment Recommendation”,abbr:“SBAR”,urg:“normal”,def:“의료진 간 의사소통을 표준화한 도구. 상황(S)·배경(B)·평가(A)·권고(R)로 구성.”,syms:[],nursing:[‘S: “305호 김OO, 호흡곤란으로 SpO2 88%입니다.”’,‘B: “71세 COPD 과거력, 오늘 입원, 3L O2 중.”’,‘A: “천명음 증가, RR 26회/분, 불안 증상.”’,‘R: “기관지확장제 nebulizer 처방 부탁드립니다.”’],labs:[“해당 없음”],notes:“SBAR 사용은 의사소통 오류를 줄이고 환자 안전을 향상시키는 근거 기반 전략.”,related:[“환자안전”,“인계”,“의사소통”]},
-{id:46,cat:“hospital”,kr:“낙상예방”,en:“Fall Prevention”,abbr:“Fall Risk”,urg:“normal”,def:“입원 환자에서 낙상은 예방 가능한 주요 위해 사건. 낙상 위험 평가 후 단계별 예방 중재를 적용.”,syms:[],nursing:[“Morse Fall Scale로 위험 평가”,“고위험: 노란 팔찌·침대 표지판 표시”,“4가지 기본: 침대 난간↑+낮추기+콜벨+미끄럼 방지 양말”,“야간 조명 유지”,“낙상 위험 약물 검토 (진정제·이뇨제·혈압약)”],labs:[“기립성 BP 측정”,“혈당”,“전해질”],notes:“낙상 발생 시: 환자 확인 → 의사 보고 → 사건보고서 → 보호자 연락. 신고 숨기는 것이 더 큰 문제.”,related:[“욕창”,“Morse Scale”,“기립성저혈압”,“환자안전”]},
-{id:47,cat:“hospital”,kr:“욕창위험도평가”,en:“Braden Scale”,abbr:“Braden”,urg:“normal”,def:“욕창 발생 위험도를 평가하는 도구. 감각인지·습기·활동·기동성·영양·마찰/전단 6항목, 6-23점.”,syms:[],nursing:[“18점↓ 위험 / 15-18: 경도 / 13-14: 중등도 / 10-12: 고위험”,“입원 시·수술 후·상태 변화 시마다 재평가”,“고위험: 2시간마다 체위 변경 기록”,“피부 사정 체위 변경마다”],labs:[“Albumin, Prealbumin”,“혈당”],notes:“Braden: 낮을수록 위험이 높음 (역방향 채점). 욕창 진단 도구가 아닌 예방 도구.”,related:[“욕창”,“체위변경”,“영양지원”]},
-{id:48,cat:“hospital”,kr:“중심정맥관”,en:“Central Venous Catheter”,abbr:“CVC / PICC”,urg:“normal”,def:“말초 정맥 접근이 어렵거나 강한 약물(항암제·TPN·승압제) 투여 시 대정맥에 삽입하는 카테터.”,syms:[],nursing:[“삽입 후 X-ray로 위치·기흉 확인 필수”,“CLABSI 예방 번들: 손위생·최대 멸균·클로르헥시딘·최적 부위·매일 재평가”,“투명 드레싱 7일마다, 거즈 2일마다”,“매일 ‘이 카테터가 필요한가?’ 재평가”],labs:[“삽입 후 Chest X-ray”,“혈액배양 (감염 의심)”,“CBC, CRP”],notes:“CLABSI 예방은 삽입 후 유지 관리가 더 중요. 불필요한 CVC 조기 제거가 최선의 예방책.”,related:[“CLABSI”,“PICC”,“TPN”,“혈액배양”]},
-{id:49,cat:“hospital”,kr:“필요 시 투여”,en:“Pro Re Nata”,abbr:“PRN”,urg:“normal”,def:“정해진 시간이 아닌 환자의 증상·필요에 따라 투여하는 처방 방식.”,syms:[],nursing:[“투여 전 증상 평가 (통증 NRS, 체온 등)”,“마지막 투여 시간·허용 간격 확인”,“투여 후 효과 재평가·기록”,“PRN 과다 요청 시 정규 처방 전환 의사 보고”],labs:[“해당 약물에 따라 다름”],notes:“PRN 기록에는 ’투여 이유(증상)’와 ‘투여 후 효과’를 함께 기록해야 법적 효력.”,related:[“통증사정”,“마약성진통제”,“약물투여”]},
-{id:50,cat:“hospital”,kr:“즉시”,en:“Statim”,abbr:“STAT”,urg:“normal”,def:“라틴어 ‘statim’(즉시)에서 유래. 가장 높은 우선순위로 즉각 시행해야 하는 처방·검사 지시.”,syms:[],nursing:[“STAT 오더는 5-15분 이내 처리”,“약사 즉시 연락 → 우선 조제 요청”,“시행 정확한 시간 기록”,“결과 즉시 의사에게 보고”],labs:[“STAT Lab: 보통 30-60분 이내 결과”],notes:“STAT 남용은 실제 응급 우선순위 판단을 흐리게 함. 진정한 STAT는 생명 위협 또는 즉각적 임상 결정 시에만.”,related:[“ASAP”,“응급처치”]},
+  {id:1,cat:"cardiac",kr:"심근경색",en:"Myocardial Infarction",abbr:"MI / AMI",urg:"critical",def:"관상동맥이 혈전으로 완전히 막혀 심근 조직이 괴사하는 응급 질환. STEMI와 NSTEMI로 분류되며 초기 재관류 치료가 예후를 결정한다.",syms:["극심한 흉통 (압박·쥐어짜는 느낌, 30분↑)","좌측 팔·어깨·턱으로 방사통","호흡곤란, 식은땀","오심·구토","실신 또는 의식 저하"],nursing:["즉시 12-lead ECG 시행 및 판독","IV access 2개↑ (18G↑) 확보","Aspirin 300mg 씹어 복용","NTG 설하 (SBP ≥90mmHg 확인 후)","STEMI 확인 시 PCI팀 즉시 호출"],labs:["Troponin I/T","CK-MB","BNP","CBC, PT/aPTT","Lipid panel"],notes:'"Time is Muscle" — 증상 발생 시각을 정확히 기록. 당뇨 환자는 무통성 심근경색 가능.',related:["협심증","심부전","심정지","STEMI","PCI"]},
+  {id:2,cat:"cardiac",kr:"심부전",en:"Heart Failure",abbr:"HF / CHF",urg:"urgent",def:"심장이 신체에 필요한 혈액을 충분히 박출하지 못하는 상태. EF에 따라 HFrEF(≤40%)와 HFpEF(≥50%)로 구분된다.",syms:["호흡곤란 (기좌호흡 — 눕히면 악화)","하지 부종 (양측성, 저녁 악화)","야간 발작성 호흡곤란 (PND)","피로감, 운동 불내성","복수, 간비대 (우심부전)"],nursing:["체중 매일 측정 (1일 2kg↑ 즉시 보고)","I&O 정확 기록, 수분 제한 1.5-2L/일","반좌위 (HOB 30-45도)","저염식이 (2g/일↓)","Diuretics 후 소변량·K+ 확인"],labs:["BNP / NT-proBNP","Echo (EF)","Chest X-ray","BMP","Troponin"],notes:"BNP >100 pg/mL는 심부전 가능성 높음. 단 비만 환자는 낮게 측정될 수 있음.",related:["심근경색","부정맥","폐부종","BNP","이뇨제"]},
+  {id:3,cat:"cardiac",kr:"부정맥",en:"Arrhythmia",abbr:"A-fib / VF / VT",urg:"urgent",def:"심장 전기 전도계 이상으로 심박수나 리듬이 불규칙해지는 상태. 심방세동(A-fib)이 가장 흔하며 심실세동(VF)은 즉각 심정지를 유발한다.",syms:["두근거림 (심계항진)","어지럼증, 실신","흉통, 호흡곤란","VF/무맥성 VT: 무반응·맥박없음"],nursing:["12-lead ECG + 지속 심전도 모니터링","심첨부 vs 요골동맥 맥박 동시 측정","항응고제 시 INR·출혈 징후 관찰","Defibrillator 상시 준비","VF 발견 즉시 CPR + 제세동"],labs:["12-lead ECG","전해질 (K+, Mg2+)","TSH","INR","Holter monitor"],notes:"A-fib 항응고 여부는 CHA₂DS₂-VASc score로 결정. 맥박만으로 종류 알 수 없으므로 심전도 필수.",related:["심정지","뇌졸중","심방세동","와파린","INR"]},
+  {id:4,cat:"cardiac",kr:"고혈압",en:"Hypertension",abbr:"HTN",urg:"normal",def:"수축기 ≥140mmHg 또는 이완기 ≥90mmHg인 상태. 뇌졸중·심근경색·신부전의 주요 위험 인자. 대부분 무증상.",syms:["대부분 무증상 (침묵의 살인자)","두통 (후두부, 이른 아침)","고혈압 위기: 흉통·호흡곤란·의식 변화"],nursing:["양측 팔 혈압 측정 비교 (15mmHg↑ 시 보고)","5분 안정 후 재측정 (백의 고혈압)","고혈압 위기 (>180/120) 즉시 보고","저염식이 및 생활습관 교육"],labs:["Urinalysis (단백뇨)","BMP (Cr, K+)","Lipid panel","ECG (LVH)"],notes:"고혈압 위기 시 첫 1시간에 25%만 감소 — 너무 빠른 강압은 허혈 발생 위험.",related:["뇌졸중","신부전","심근경색","DASH식이"]},
+  {id:5,cat:"cardiac",kr:"심정지",en:"Cardiac Arrest",abbr:"CA / CPA",urg:"critical",def:"심장이 갑자기 박동을 멈춰 혈액 순환이 중단된 상태. 4~6분 내 뇌 손상, 10분 후 비가역적 손상 시작.",syms:["갑작스러운 무반응","무호흡 또는 사멸호흡 (gasping)","경동맥 맥박 없음","청색증"],nursing:["즉시 CPR: 100-120회/분, 5-6cm, 완전 이완","2분마다 가슴압박 담당 교체","AED 즉시 적용","에피네프린 1mg IV 3-5분마다","기도 확보 및 환기"],labs:["ABG (소생 후)","전해질","혈당","4H4T 원인 감별"],notes:"4H: Hypoxia·Hypovolemia·Hypothermia·H+산증 / 4T: Tension PTX·Tamponade·Toxins·Thrombosis.",related:["CPR","AED","부정맥","소생후증후군"]},
+  {id:6,cat:"cardiac",kr:"협심증",en:"Angina Pectoris",abbr:"AP / UA",urg:"urgent",def:"관상동맥 협착으로 심근에 산소 공급이 일시적으로 부족하여 발생하는 흉통. 안정형·불안정형·변이형으로 구분.",syms:["흉골 하부 압박·조이는 통증 (15분 이내)","운동·스트레스·식사 후 악화","쉬거나 NTG 후 완화","불안정형: 안정 시에도 발생"],nursing:["통증 발생 즉시 활동 중단","NTG 설하 5분 간격 최대 3회","3회 후 지속 시 즉시 보고 (MI 가능성)","ECG 시행"],labs:["12-lead ECG","Troponin (상승 시 NSTEMI)","CBC, Lipid panel","관상동맥조영술"],notes:"안정형 vs NSTEMI 차이: Troponin 상승 유무. 불안정형은 NSTEMI로 진행 가능 — 즉각 관리 필요.",related:["심근경색","NSTEMI","PCI","Nitroglycerin"]},
+  {id:7,cat:"cardiac",kr:"대동맥박리",en:"Aortic Dissection",abbr:"AD",urg:"critical",def:"대동맥 내막이 찢어져 혈액이 내막과 중막 사이로 유입되는 응급 상태. Stanford A형은 즉각적 수술이 필요.",syms:["갑작스럽고 극심한 흉통 (찢어지는 느낌, 등으로 방사)","양측 팔 혈압 차이 >20mmHg","신경학적 증상","맥박 결손"],nursing:["양측 팔 혈압 비교 필수","IV access 2개·혈액 준비","SBP 100-120mmHg 목표 (Beta-blocker)","절대 안정","즉각적 수술팀 호출 (Type A)"],labs:["CT 혈관조영술 (확진)","CBC, Type & Crossmatch","Troponin","ECG"],notes:"MI 의심 시 대동맥박리 배제 필수 — 혈전용해제는 절대 금기.",related:["심근경색","심장눌림증","고혈압","혈관수술"]},
+  {id:8,cat:"cardiac",kr:"심부정맥혈전증",en:"Deep Vein Thrombosis",abbr:"DVT",urg:"urgent",def:"주로 하지 심부정맥에 혈전이 형성된 상태. Virchow triad가 원인이며 폐색전증으로 진행 가능.",syms:["하지 부종 (편측성)","발적, 열감, 압통","Homans sign","PE 동반 시 호흡곤란"],nursing:["하지 마사지 절대 금지","침상 안정, 환측 거상 (15-30도)","항응고제 시 INR·aPTT·출혈 모니터링","압박스타킹 (급성기 이후)"],labs:["D-dimer (스크리닝)","하지정맥 Doppler US (확진)","Wells score","CT-PA (PE 의심 시)"],notes:"Wells score 2점↑: 중등도-고위험. D-dimer 음성이면 저위험군에서 DVT 배제 가능.",related:["폐색전증","항응고요법","헤파린","와파린"]},
+  {id:9,cat:"respiratory",kr:"폐렴",en:"Pneumonia",abbr:"PNA / CAP / HAP",urg:"urgent",def:"세균·바이러스·진균에 의해 폐 실질에 염증이 발생한 상태. 지역사회획득성(CAP)과 병원획득성(HAP)으로 구분.",syms:["발열·오한","기침 (화농성 객담)","흡기 시 흉막성 흉통","호흡곤란, SpO2 저하","청진: 수포음 (crackles)"],nursing:["SpO2 94%↑ 유지","체위 변경 2시간마다","구강 위생 철저히","항생제 투여 전 혈액배양 2세트","CURB-65 평가"],labs:["CBC, CRP, Procalcitonin","Blood culture ×2","Sputum C&S","Chest X-ray","ABG"],notes:"CURB-65: 혼돈(1)+BUN>19(1)+RR≥30(1)+SBP<90(1)+연령≥65(1). 2점↑ 입원.",related:["ARDS","패혈증","흡인성폐렴","결핵"]},
+  {id:10,cat:"respiratory",kr:"만성폐쇄성폐질환",en:"COPD",abbr:"COPD",urg:"normal",def:"흡연 등으로 인한 만성 기도 염증으로 폐기능이 비가역적으로 감소하는 진행성 질환. FEV1/FVC <0.70이 진단 기준.",syms:["만성 기침 (특히 아침)","화농성 객담","점진적 호흡곤란","천명음, 통형 흉곽"],nursing:["금연 교육 (가장 중요)","흡입기 사용법 교육","산소 2-3L/min (저산소 호흡구동 주의)","독감·폐렴구균 예방접종"],labs:["PFT: FEV1/FVC <0.70","ABG","Chest X-ray/CT","CBC"],notes:"COPD 악화 시 SpO2 88-92% 목표 — 고농도 산소 투여 시 CO2 저류 위험.",related:["기흉","천식","폐암","ARDS"]},
+  {id:11,cat:"respiratory",kr:"폐색전증",en:"Pulmonary Embolism",abbr:"PE",urg:"critical",def:"하지 심부정맥혈전이 폐동맥을 막아 폐혈류가 차단되는 응급 상태. 대량 PE는 우심부전과 쇼크 유발.",syms:["갑작스러운 호흡곤란 (안정 시에도)","흉막성 흉통 (흡기 시 악화)","빈맥 (가장 흔한 징후)","객혈","DVT 증상 동반 (약 30%)"],nursing:["즉각적인 고농도 산소 공급","Wells score 평가 보조","항응고 시작 전 출혈 금기 확인","절대 침상 안정","하지 마사지 금지"],labs:["D-dimer","CT-PA (확진)","Troponin, BNP","ABG","ECG (S1Q3T3)"],notes:"CT-PA 가능하면 D-dimer만으로 결정하지 말 것. ECG S1Q3T3는 민감도 낮지만 대량 PE 시사.",related:["DVT","항응고요법","혈전용해술","우심부전"]},
+  {id:12,cat:"respiratory",kr:"기흉",en:"Pneumothorax",abbr:"PTX",urg:"urgent",def:"흉막강 내로 공기가 유입되어 폐가 허탈(collapse)되는 상태. 자연기흉과 외상성, 긴장성 기흉으로 구분.",syms:["갑작스러운 날카로운 흉통","호흡곤란","환측 호흡음 소실","긴장성: 기관 편위·혈압 저하·경정맥 확장"],nursing:["긴장성: 즉각 바늘 감압술 (2번째 늑간)","흉관 삽입 후 air leak·파동 관찰","흉관 유닛 항상 침대 아래 유지","심호흡·기침 격려"],labs:["Chest X-ray","ABG","SpO2","CT (복잡성)"],notes:"긴장성 기흉은 X-ray 기다리지 않고 임상 진단 즉시 감압 — 분초를 다투는 응급.",related:["COPD","흉관삽입","혈흉","기계적환기"]},
+  {id:13,cat:"respiratory",kr:"급성호흡곤란증후군",en:"ARDS",abbr:"ARDS",urg:"critical",def:"폐 손상으로 산소화가 심각하게 저하되는 증후군. PaO2/FiO2 <300이 기준이며 폐렴·패혈증·흡인이 주요 원인.",syms:["급격히 악화되는 호흡곤란","고농도 산소에도 SpO2 개선 안 됨","청진: 광범위한 수포음","X-ray: 양측성 음영 (whiteout)"],nursing:["폐 보호 환기: TV 6mL/kg, 적정 PEEP","복와위 (prone) 16-18시간/일","수분 Conservative 관리","VAP 예방 번들","진정 RASS -1~-2 목표"],labs:["ABG (P/F ratio)","Chest X-ray/CT","혈액배양","Lactate","Echo (심인성 배제)"],notes:"P/F ratio = PaO2 ÷ FiO2. 경증 200-300, 중등 100-200, 중증 <100.",related:["패혈증","폐렴","기계적환기","복와위","ECMO"]},
+  {id:14,cat:"respiratory",kr:"결핵",en:"Tuberculosis",abbr:"TB",urg:"urgent",def:"Mycobacterium tuberculosis에 의한 만성 감염병. 비말핵으로 전파되며 폐를 주로 침범.",syms:["3주↑ 지속 기침","야간 발한","발열","체중 감소","객혈 (cavitary TB)"],nursing:["음압격리실, N95 마스크 (의료진)","환자에게 외과용 마스크","DOTS 교육 (최소 6개월)","접촉자 조사·보건소 신고 (제2급)","간독성 모니터링"],labs:["AFB 도말·배양 (3일 연속)","TB-PCR","Chest X-ray/CT","IGRA 또는 TST","LFT"],notes:"약제 내성 결핵(MDR-TB) 증가 추세. 약제 순응도가 치료의 핵심.",related:["잠복결핵","MDR-TB","폐렴","BCG"]},
+  {id:15,cat:"gi",kr:"췌장염",en:"Pancreatitis",abbr:"AP / CP",urg:"urgent",def:"췌장 효소의 자가소화로 염증이 발생하는 질환. 담석과 음주가 전체의 80%.",syms:["심와부/좌상복부 극심한 통증 (등으로 방사)","오심·구토 (구토 후에도 지속)","발열, 복부 팽만","Cullen sign, Grey Turner sign (중증)"],nursing:["초기 NPO (경장영양 조기 시작 권고)","IV fluid 적극 공급 (250-500mL/hr)","통증 조절","혈당 모니터링 4-6시간마다","Ranson score, APACHE II 평가"],labs:["Amylase, Lipase (정상 3배↑)","CBC, CMP, LFT","CT 복부 (Balthazar)","Abdominal US (담석)"],notes:"Lipase가 Amylase보다 민감도·특이도 높음. 진단: 복통+효소 3배↑+영상 소견 중 2가지↑.",related:["담낭염","담석","가성낭종","췌장암"]},
+  {id:16,cat:"gi",kr:"위장관출혈",en:"GI Bleeding",abbr:"UGIB / LGIB",urg:"critical",def:"상부(식도~십이지장) 또는 하부(공장~항문) 위장관에서 발생하는 출혈. 소화성 궤양이 UGIB의 가장 흔한 원인.",syms:["토혈 (선홍색 또는 커피찌꺼기)","흑색변 (melena: UGIB)","혈변 (hematochezia: LGIB)","저혈압·빈맥 (쇼크)"],nursing:["즉시 V/S 측정·쇼크 확인","IV access 2개 (16-18G)·수액·수혈 준비","내시경 전 NPO","변 성상·색·양 기록","PPI IV (UGIB 시)"],labs:["CBC (Hgb 연속)","BMP, PT/INR","Type & Crossmatch","BUN/Cr >20 → UGIB 시사","Stool guaiac"],notes:"Hgb는 급성 출혈 초기엔 정확히 반영 안 됨. BUN/Cr ratio는 상부 출혈 감별에 유용.",related:["소화성궤양","식도정맥류","간경화","대장암"]},
+  {id:17,cat:"gi",kr:"간경화",en:"Liver Cirrhosis",abbr:"LC",urg:"normal",def:"만성 간 손상으로 정상 간세포가 섬유화 조직으로 대체되어 간 기능이 비가역적으로 저하되는 질환.",syms:["황달, 복수, 하지 부종","출혈 경향 (PT 연장)","간성뇌증 (혼돈, 수면 역전)","거미상혈관종, 손바닥 홍반"],nursing:["복위·체중 매일 측정","출혈 징후 관찰 (토혈, 흑색변)","저염식이 (2g/일)","Lactulose 후 대변 3-4회/일 목표","정신 상태 변화 모니터링"],labs:["LFT, Bilirubin","Albumin, PT/INR","NH3 (암모니아)","CBC (범혈구 감소)","Abdominal US+Doppler"],notes:"Child-Pugh, MELD score로 중증도 평가. MELD ≥15: 간이식 대기 고려.",related:["간부전","식도정맥류","간성뇌증","간세포암"]},
+  {id:18,cat:"gi",kr:"급성충수염",en:"Appendicitis",abbr:"Appy",urg:"urgent",def:"충수 내강이 막혀 염증이 발생하는 상태. 천공 시 복막염으로 진행.",syms:["배꼽 주위 통증 → 우하복부 (McBurney) 이동","오심·구토, 미열","반발 압통","Rovsing sign, Psoas sign"],nursing:["통증 부위 변화 관찰","수술 전 NPO, IV access","예방적 항생제","체온 모니터링 (천공 시 고열)"],labs:["CBC (WBC↑)","CRP","CT 복부 (확진)","β-hCG (가임기 여성)"],notes:"Alvarado score 7점↑: 수술 고려. 임산부는 충수 위치 상방 이동으로 통증 위치 다를 수 있음.",related:["복막염","담낭염","자궁외임신","장폐색"]},
+  {id:19,cat:"gi",kr:"간성뇌증",en:"Hepatic Encephalopathy",abbr:"HE",urg:"urgent",def:"간부전으로 암모니아 등 독성 물질이 뇌에 축적되어 신경정신 증상이 발생하는 상태.",syms:["수면 장애 (낮밤 역전) — Grade 1","혼란·지남력 장애 — Grade 2","졸림·반응 저하 — Grade 3","혼수 — Grade 4","asterixis (flapping tremor)"],nursing:["정신 상태 변화 지속 평가","낙상 예방","Lactulose: 대변 3-4회/일 목표","유발 인자 교정 (감염·변비·탈수)","과도한 단백질 제한 금지"],labs:["NH3","LFT, PT/INR","BMP","Blood culture, U/A","CT 뇌"],notes:"암모니아 수치와 증상 심각도가 항상 일치하지 않음 — 임상 증상으로 판단이 더 중요.",related:["간경화","간부전","복막염","Lactulose"]},
+  {id:20,cat:"neuro",kr:"뇌졸중",en:"Stroke / CVA",abbr:"CVA / TIA",urg:"critical",def:"뇌혈관 막힘(허혈성 80%)이나 터짐(출혈성 20%)으로 뇌 기능이 갑자기 손상되는 질환. 'Time is Brain.'",syms:["갑작스러운 편측 마비·감각 이상","언어 장애 (실어증, 구음 장애)","시야 장애","갑작스러운 심한 두통 (출혈성)","균형 장애·보행 불능"],nursing:["BEFAST 평가: Balance·Eyes·Face·Arm·Speech·Time","증상 발생 시간 정확히 확인","tPA 조건 확인 (4.5시간 이내)","HOB 허혈성 0도, 두개내압↑ 시 30도","흡인 예방 (삼킴 평가 전 NPO)"],labs:["CT 뇌 (15분 이내)","MRI/DWI","CBC, PT/INR","혈당","심전도 (AF 감별)"],notes:"tPA는 출혈성, SBP>185/DBP>110, 최근 수술력 시 금기. Wake-up stroke: DWI-FLAIR mismatch로 결정.",related:["TIA","두개내출혈","tPA","AF"]},
+  {id:21,cat:"neuro",kr:"뇌수막염",en:"Meningitis",abbr:"BM / ABM",urg:"critical",def:"뇌와 척수를 감싸는 수막에 세균·바이러스·진균이 감염되어 염증이 발생한 상태. 세균성이 가장 치명적.",syms:["3주징: 두통+발열+경부 경직","빛 공포증, 소리 공포증","의식 변화","자반증·점상출혈 (수막구균)"],nursing:["비말 격리 (세균성: 항생제 후 24시간)","N95 마스크 착용","항생제 즉각 투여 (요추천자 기다리지 않고)","두개내압 상승 징후 모니터링","Kernig·Brudzinski 징후 사정"],labs:["요추천자 (CSF 분석)","CT 뇌 (천자 전)","Blood culture ×2","CBC, CRP, PCT","PCR"],notes:"세균성 CSF: 탁함, WBC↑↑(다형핵), 단백↑, 당↓. 바이러스성: 맑음, WBC↑(단핵구), 당 정상.",related:["뇌염","뇌농양","패혈증","두개내압상승"]},
+  {id:22,cat:"neuro",kr:"뇌전증",en:"Epilepsy / Seizure",abbr:"Sz / SE",urg:"urgent",def:"뇌 신경세포의 비정상적 과도한 방전으로 경련·의식 변화가 반복되는 만성 신경계 질환.",syms:["강직-간대 발작","의식 소실","발작 후 기면 (Todd 마비)","자동증 (입술 씹기, 손 비비기)","실금·혀 깨물기"],nursing:["발작 중 낙상 예방","기도 확보 — 입 안 물건 절대 금지","5분↑ 지속 시 Lorazepam IV","발작 양상·지속 시간 기록","산소 공급, IV access"],labs:["EEG","MRI 뇌","혈당 (저혈당 배제)","전해질","항경련제 혈중 농도"],notes:"Status epilepticus: 5분↑ 경련. Lorazepam → Fosphenytoin → Phenobarbital 순.",related:["Status epilepticus","뇌종양","저혈당","항경련제"]},
+  {id:23,cat:"neuro",kr:"섬망",en:"Delirium",abbr:"DL",urg:"urgent",def:"급성으로 발생하는 주의력 장애와 의식 혼탁을 특징으로 하는 가역적 신경정신과적 증후군. 노인 입원 환자에서 흔함.",syms:["갑작스러운 혼돈 (수시간~수일 내)","주의력·지남력 장애","과활동형 (흥분) 또는 저활동형 (기면)","수면-각성 주기 이상"],nursing:["원인 교정 (감염·약물·전해질·저산소)","재지남력 제공 (날짜·장소·사람)","환경: 낮 밝게·밤 어둡게","CAM 도구로 매일 평가","신체 억제대 최소화"],labs:["CBC, BMP","U/A + Culture (UTI 가장 흔함)","Blood culture","TSH","CT 뇌"],notes:"저활동형 섬망은 조용히 기면 상태라 간과되기 쉬움. 인지 기능 저하 환자는 위험 3-5배.",related:["치매","패혈증","저산소증","ICU섬망"]},
+  {id:24,cat:"neuro",kr:"두개내압 상승",en:"Increased ICP",abbr:"↑ICP",urg:"critical",def:"두개강 내 압력 >20mmHg인 상태. 뇌부종·혈종·수두증이 원인이며 뇌탈출로 사망 가능.",syms:["두통 (이른 아침, 기침 시 악화)","분출성 구토","의식 저하","쿠싱 반사: 고혈압+서맥+불규칙 호흡","동공 불균등 또는 고정 확장"],nursing:["HOB 30도 유지","경추 중립 유지","Mannitol IV 또는 3% NaCl","발열 즉시 교정","PaCO2 35-40 유지 (과호흡은 최후 수단)"],labs:["CT 뇌 (즉시)","ICP 모니터 (EVD)","ABG (PaCO2)","BMP (Na+)"],notes:"Cushing triad(고혈압+서맥+불규칙 호흡): 뇌탈출 임박 → 즉각 신경외과 호출.",related:["뇌졸중","뇌수막염","수두증","GCS"]},
+  {id:25,cat:"msk",kr:"골절",en:"Fracture",abbr:"Fx",urg:"urgent",def:"외력·병적 원인·반복 피로로 뼈의 연속성이 끊어진 상태. 개방골절은 감염 위험으로 즉각 처치 필요.",syms:["국소 통증·압통","부종, 혈종","변형 (비정상적 각도)","기능 상실","염발음 (Crepitus)"],nursing:["5P 사정: Pain·Pallor·Pulselessness·Paresthesia·Paralysis","개방골절: 멸균 드레싱·예방적 항생제","부목 고정 후 원위부 순환 재확인","구획증후군 감시"],labs:["X-ray (2방향)","CT (복잡·척추)","CBC","PT/INR"],notes:"고령자 고관절 골절: 1년 내 사망률 20-30%. 수술 48시간 이내 시행 시 예후 개선.",related:["구획증후군","DVT","골수염","골다공증"]},
+  {id:26,cat:"msk",kr:"구획증후군",en:"Compartment Syndrome",abbr:"CS",urg:"critical",def:"근막으로 싸인 구획 내 압력이 상승하여 혈류가 차단되는 상태. 지연 시 영구적 근육 괴사(Volkmann 구축).",syms:["극심한 통증 (수동적 신전 시 악화)","창백, 맥박 감소/소실","감각 이상","운동 마비"],nursing:["즉시 의사 보고","부목·석고붕대 즉시 제거","사지 심장 높이 유지 (높이 올리지 않음)","구획 압력 측정 (>30mmHg 시 수술)","근막절개술 준비"],labs:["구획 내 압력 측정","CK (근손상)","Myoglobin","소변 색 (적갈색)"],notes:"가장 흔한 부위: 전경부. 진단 지연 = 불가역적 손상.",related:["골절","근막절개술","횡문근융해","급성신손상"]},
+  {id:27,cat:"msk",kr:"욕창",en:"Pressure Injury",abbr:"PI / PU",urg:"normal",def:"지속적인 압력·마찰·전단력에 의해 피부 및 피하조직이 손상된 상태. Stage 1~4, 미분류, DTI.",syms:["Stage 1: 압박 후 소실 안 되는 발적","Stage 2: 수포, 표피 손실","Stage 3: 피하지방 노출","Stage 4: 근육/건/뼈 노출","삼출물, 악취"],nursing:["Braden scale로 위험도 평가 (18점↓ 고위험)","2시간마다 체위 변경 (핵심)","압력 완화 매트리스","피부 보습·청결","영양: 단백질 1.2-1.5g/kg/일"],labs:["Albumin, Prealbumin","CBC, 혈당","Wound culture (감염 시)"],notes:"발뒤꿈치 욕창 위험 가장 높음. 부유 발뒤꿈치(float the heel)로 압력 완전 제거.",related:["당뇨발","골수염","영양지원","Braden scale"]},
+  {id:28,cat:"msk",kr:"류마티스관절염",en:"Rheumatoid Arthritis",abbr:"RA",urg:"normal",def:"활막의 자가면역 염증으로 관절이 파괴되는 전신 염증성 질환. 손·발의 소관절을 대칭적으로 침범.",syms:["대칭성 소관절 통증·부종·열감","조조강직 (아침에 1시간↑)","피로, 발열, 체중 감소","관절 변형 (척골편위, 백조목)"],nursing:["관절 보호 원칙 교육","급성기: 냉찜질 / 완화기: 온찜질+운동","MTX: 간독성 모니터링, 엽산 보충","생물학적 제제 전 결핵 검사"],labs:["RF","Anti-CCP","ESR, CRP","CBC, LFT, Cr","X-ray 손/발"],notes:"Anti-CCP는 조기 RA에도 양성 — 조기 진단에 유용. 조기 공격적 치료(Treat to Target)가 핵심.",related:["SLE","통풍","건선관절염","Methotrexate"]},
+  {id:29,cat:"endocrine",kr:"당뇨병성케톤산증",en:"Diabetic Ketoacidosis",abbr:"DKA",urg:"critical",def:"인슐린 절대 결핍으로 케톤체가 축적되어 대사성 산증이 발생하는 응급 상태. 주로 제1형 당뇨에서 발생.",syms:["구역·구토·복통","다뇨·다음","탈수 (피부 탄력 저하)","Kussmaul 호흡","과일 냄새 나는 호기 (아세톤)"],nursing:["IV fluid: 0.9% NaCl 1L/hr","인슐린 Regular 0.1unit/kg/hr IV","K+ <3.5이면 인슐린 시작 전 교정","혈당 시간마다 측정 (50-75mg/dL/hr 감소)","혈당 200↓ 시 D/W 병행"],labs:["Glucose (500-800+ mg/dL)","Ketone","ABG (pH<7.3, HCO3-<15)","BMP (K+, Na+)","Anion gap"],notes:"DKA 해소: pH>7.3, HCO3->15, Anion gap 정상화. 혈당 정상화는 DKA 해소 기준 아님.",related:["HHS","저혈당","인슐린","대사성산증"]},
+  {id:30,cat:"endocrine",kr:"저혈당증",en:"Hypoglycemia",abbr:"Hypoglycemia",urg:"urgent",def:"혈당 <70mg/dL인 상태. 인슐린·설폰요소제 사용, 금식, 간부전 환자에서 흔히 발생.",syms:["발한, 떨림, 빈맥 (교감신경 — 조기)","두통, 어지럼증, 배고픔","혼돈, 집중력 저하","경련, 의식 소실 (중증)"],nursing:["의식 있을 시: 15-15 규칙 (속효 탄수화물 15g + 15분 후 재측정)","의식 없을 시: 50% D/W 50mL IV 또는 Glucagon 1mg IM","15분 후 재측정, 목표 >100mg/dL","원인 약물 확인 및 용량 조절"],labs:["혈당 즉시 POCT","반복 측정","인슐린, C-peptide","LFT (간부전)"],notes:"설폰요소제에 의한 저혈당은 반감기가 길어 재발 가능 — D/W 지속 주입 또는 Octreotide 고려.",related:["DKA","당뇨병","인슐린","Glucagon"]},
+  {id:31,cat:"endocrine",kr:"갑상선중독증",en:"Thyroid Storm",abbr:"TS",urg:"critical",def:"갑상선 호르몬이 급격히 과다 분비되는 생명을 위협하는 응급 상태. 감염·수술·요오드 조영제가 유발 인자.",syms:["고열 (>38.5°C, 종종 40°C↑)","극심한 빈맥 (빈맥성 부정맥)","고혈압 → 심부전","심한 흥분, 혼돈","오심·구토·설사"],nursing:["즉각 ICU 이송","냉담요·냉각 패드 (아스피린 금기)","Beta-blocker (빈맥, 발열 조절)","PTU 투여 후 1시간 뒤 Lugol 요오드 (순서 엄수)","Dexamethasone (T4→T3 전환 억제)"],labs:["TSH (↓↓, 거의 0)","Free T4, T3 (↑↑)","CBC, BMP","ECG","Blood culture"],notes:"PTU → 요오드 → 스테로이드 순서 반드시 준수. Burch-Wartofsky score 45점↑: 갑상선폭풍.",related:["갑상선기능항진증","Graves병","PTU","갑상선절제술"]},
+  {id:32,cat:"endocrine",kr:"당뇨병",en:"Diabetes Mellitus",abbr:"DM (T1/T2)",urg:"normal",def:"인슐린 분비 부족(제1형) 또는 인슐린 저항성(제2형)으로 만성 고혈당 상태가 지속되는 대사 질환.",syms:["다음·다뇨·다식 (3다 증상)","체중 감소 (T1DM)","피로감, 시야 흐림","잦은 감염 (피부, 요로)","말초 감각 이상"],nursing:["혈당 모니터링 교육 (식전, 식후 2시간)","인슐린 자가주사 교육 (부위 rotation)","발 관리 교육 (매일 검진, 맨발 금지)","HbA1c 목표 <7%"],labs:["공복혈당 ≥126mg/dL","HbA1c ≥6.5%","OGTT","Urinalysis (단백뇨)","Lipid panel, Cr"],notes:"당뇨 발: 신경병증+혈관병증+감염 복합. ABI <0.9: 말초동맥질환. 연간 안과·신장·발 검진 필수.",related:["DKA","HHS","저혈당","당뇨망막병증","당뇨신증"]},
+  {id:33,cat:"renal",kr:"급성신손상",en:"Acute Kidney Injury",abbr:"AKI",urg:"urgent",def:"48시간 이내 혈청 Creatinine 0.3mg/dL↑ 또는 7일 이내 기저치의 1.5배↑. 혈류 감소·신독성 약물·요로 폐색이 주요 원인.",syms:["소변량 감소 (핍뇨 <400mL/일)","부종 (전신, 폐부종)","전해질 이상 (K+↑ → 부정맥)","요독 증상: 오심·구토·피로"],nursing:["I&O (시간당 소변량 <0.5mL/kg 시 보고)","체중 매일 측정","신독성 약물 중단 (NSAIDs, Aminoglycoside)","K+↑ 시 ECG 모니터링","투석 적응증: AEIOU"],labs:["BMP (Cr, BUN, K+)","Urinalysis + 소변 침사","FeNa","신장 US","CBC"],notes:"조영제 신독성 예방: 사전 수액 공급. AKI 시 Metformin, NSAIDs, ACEI/ARB 일시 중단 고려.",related:["만성신부전","투석","횡문근융해"]},
+  {id:34,cat:"renal",kr:"요로감염",en:"UTI / CAUTI",abbr:"UTI / CAUTI",urg:"normal",def:"방광·요도·신우에 세균이 감염된 상태. E. coli가 가장 흔한 원인균. 카테터 관련 요로감염(CAUTI)은 병원 감염의 주요 원인.",syms:["배뇨통 (dysuria)","빈뇨, 절박뇨","탁한 소변, 혈뇨","신우신염: 발열·오한·CVA tenderness"],nursing:["카테터 적응증 재평가 (불필요 시 즉시 제거)","배액백 항상 방광 아래","수분 섭취 1.5-2L/일 권장","앞에서 뒤로 닦기 교육"],labs:["Urinalysis (WBC, nitrite)","Urine C&S (항생제 전)","CBC, CRP (신우신염)","혈액배양 (균혈증 의심)"],notes:"무증상 세균뇨는 임산부와 비뇨기과 시술 전 외엔 치료 불필요. CAUTI 예방: 카테터 최소화.",related:["신우신염","CAUTI","방광염","급성신손상"]},
+  {id:35,cat:"hematology",kr:"패혈증",en:"Sepsis",abbr:"Sepsis / Septic Shock",urg:"critical",def:"감염에 대한 조절되지 않는 숙주 반응으로 장기 기능 장애가 발생하는 상태. Septic shock: 수액 후에도 MAP <65mmHg + 젖산 >2mmol/L.",syms:["발열(>38°C) 또는 저체온(<36°C)","빈맥(>90회/분), 빈호흡(>20회/분)","의식 변화","핍뇨, 황달, 반상출혈"],nursing:["1시간 번들: 혈액배양→항생제→수액","30mL/kg 결정질 수액 볼루스","광범위 항생제 1시간 이내","젖산 측정 (>2: 위험)","Norepinephrine: MAP 65mmHg↑ 목표"],labs:["혈액배양 ×2 (항생제 전)","Lactate","CBC, BMP, LFT","Procalcitonin, CRP","응고 검사 (DIC 감시)"],notes:"qSOFA: 의식변화+RR≥22+SBP≤100 → 위험 신호. 항생제 1시간 지연 시 사망률 7-10% 상승.",related:["패혈성쇼크","DIC","ARDS","폐렴"]},
+  {id:36,cat:"hematology",kr:"파종혈관내응고",en:"DIC",abbr:"DIC",urg:"critical",def:"전신적으로 응고가 활성화되어 혈전과 출혈이 동시에 발생하는 증후군. 패혈증·산과적 응급·외상이 주요 원인.",syms:["주사 부위·점막 비정상 출혈","미세혈관 혈전: 피부 괴사","자반증, 점상출혈","혈압 저하, 빈맥"],nursing:["출혈 부위 즉각 압박","IV access·수혈 준비 (FFP, 혈소판, Cryoprecipitate)","근육주사 금지","원인 질환 치료가 최우선"],labs:["PT/INR ↑↑, aPTT ↑↑","Fibrinogen ↓ (<150mg/dL)","D-dimer ↑↑","혈소판 ↓","말초혈액도말 (schistocyte)"],notes:"DIC 치료는 기저 원인 교정이 근본. 성분수혈은 보조적 치료.",related:["패혈증","산과적응급","수혈","FFP"]},
+  {id:37,cat:"hematology",kr:"아나필락시스",en:"Anaphylaxis",abbr:"Anaphylaxis",urg:"critical",def:"항원에 대한 급격하고 전신적인 과민 반응. 약물·식품·벌독이 흔한 원인. 에피네프린이 1차 치료제.",syms:["두드러기, 홍조, 부종 (피부)","인후 부종, 천명음, 호흡곤란","저혈압, 빈맥, 쇼크","오심·구토·복통"],nursing:["에피네프린 0.3-0.5mg IM (대퇴 외측) 즉시","원인 물질 즉시 제거","고농도 산소 공급","IV access·수액 볼루스","5-15분 후 반복 가능"],labs:["임상 진단 우선 — 검사 기다리지 않음","Serum tryptase (1-2시간 후)","ABG, ECG"],notes:"에피네프린을 항히스타민제나 스테로이드로 대체 또는 지연 금지. 이중상 반응: 소실 후 4-8시간 관찰.",related:["알레르기","에피네프린","쇼크","EpiPen"]},
+  {id:38,cat:"hematology",kr:"빈혈",en:"Anemia",abbr:"Anemia",urg:"normal",def:"혈색소 농도가 정상 이하인 상태. 남성 <13g/dL, 여성 <12g/dL.",syms:["피로감, 운동 불내성","창백 (피부·결막·손바닥)","빈맥, 두근거림","두통, 어지럼증"],nursing:["활동 내성 평가·에너지 절약 교육","철분제: 공복 또는 Vit C와 함께, 차/커피 2시간 전후 금지","수혈 시: 처음 15분 집중 관찰","낙상 예방 (기립성 어지럼증)"],labs:["CBC (Hgb, MCV)","혈청 철·TIBC·Ferritin","Reticulocyte count","Vit B12, Folate"],notes:"MCV로 분류: 소구성(철결핍, 지중해빈혈), 정구성(만성질환, 급성출혈), 대구성(B12/Folate결핍).",related:["철결핍성빈혈","악성빈혈","수혈","위장관출혈"]},
+  {id:39,cat:"hospital",kr:"금식",en:"Nothing by Mouth",abbr:"NPO",urg:"normal",def:"환자에게 구강으로 어떤 물질도 섭취하지 않도록 지시하는 상태.",syms:[],nursing:["금식 시작 시간 명확히 확인·기록","NPO 표지판 부착 및 환자 교육","IV fluid로 수분·전해질 공급","구강 간호 (거즈로 수분)","현대 지침: 맑은 액체는 수술 2시간 전까지 허용"],labs:["해당 시술에 따라 다름"],notes:"과거의 '자정부터 금식'은 구식. 맑은 액체 수술 2시간 전까지 허용 — 탈수 예방.",related:["연하장애","흡인성폐렴","수술전간호","경장영양"]},
+  {id:40,cat:"hospital",kr:"활력징후",en:"Vital Signs",abbr:"V/S",urg:"normal",def:"생명 유지의 기본 지표. 혈압(BP)·맥박(HR)·호흡(RR)·체온(BT)·산소포화도(SpO2)·통증(Pain) 포함.",syms:[],nursing:["정상: BP 90-139/60-89 | HR 60-100 | RR 12-20 | BT 36.5-37.5°C | SpO2 ≥94%","측정 전 5분 이상 안정","양측 팔 혈압 측정 (첫 방문 또는 의심 시)","NEWS/EWS 활용"],labs:["기본 V/S + ABG (SpO2 낮을 때)"],notes:"NEWS 7점↑: 즉각 의사 호출·ICU 이송 고려. 이상 소견 발견 시 즉각 보고가 간호사의 의무.",related:["EWS","NEWS","쇼크","SpO2"]},
+  {id:41,cat:"hospital",kr:"섭취 및 배설량",en:"Intake and Output",abbr:"I&O",urg:"normal",def:"환자의 24시간 수분 섭취량(경구·IV·비위관)과 배설량(소변·대변·구토·배액)을 측정·기록하는 것.",syms:[],nursing:["소변량 <0.5mL/kg/hr 즉시 보고","눈금 있는 계량컵으로 정확히 측정","불감 손실 500-800mL/일 고려","24시간 합산·이전 24시간 비교"],labs:["BMP (Na+, Cr, BUN)","소변 비중","체중 매일 동일 시간"],notes:"체중 1kg 변화 ≈ 수분 1L 변화. I&O 기록과 체중 변화를 함께 비교하면 가장 신뢰.",related:["급성신손상","심부전","탈수","이뇨제"]},
+  {id:42,cat:"hospital",kr:"글라스고 혼수 척도",en:"Glasgow Coma Scale",abbr:"GCS",urg:"normal",def:"의식 수준을 객관적으로 측정하는 도구. 눈 뜨기(E)·언어(V)·운동(M) 3가지, 3-15점.",syms:[],nursing:["E: 자발 4·명령 3·통증 2·없음 1","V: 지남력 5·혼돈 4·부적절 3·이해불가 2·없음 1","M: 명령 수행 6·통증 국소화 5·회피 4·굴곡 3·신전 2·없음 1","GCS ≤8: 기관삽관 고려"],labs:["CT 뇌","혈당","ABG","독성 물질 검사"],notes:"GCS는 변화 추세가 중요. GCS ≤8을 기관삽관 기준으로 많이 사용.",related:["의식사정","두개내압상승","뇌졸중","AVPU"]},
+  {id:43,cat:"hospital",kr:"동맥혈가스분석",en:"Arterial Blood Gas",abbr:"ABG",urg:"normal",def:"동맥혈의 산소화·환기·산염기 상태를 평가하는 검사.",syms:[],nursing:["채혈 부위: 요골동맥 (1차), Allen test 먼저","채혈 후 5분↑ 압박","공기 방울 제거 후 얼음에 넣어 즉시 이송","채혈 전 FiO2·산소 투여량 기록 필수"],labs:["정상: pH 7.35-7.45 | PaO2 80-100 | PaCO2 35-45 | HCO3- 22-26","P/F ratio = PaO2 ÷ FiO2 (정상 ≥300)"],notes:"ABG 해석 순서: (1)pH → (2)PaCO2 (호흡성?) → (3)HCO3- (대사성?) → (4)보상 여부.",related:["ARDS","COPD","DKA","기계적환기"]},
+  {id:44,cat:"hospital",kr:"DNR",en:"Do Not Resuscitate",abbr:"DNR / DNAR",urg:"normal",def:"심정지·호흡 정지 시 CPR을 시행하지 않겠다는 환자 또는 법적 대리인의 사전 결정. 국내에서는 '연명의료계획서'로 제도화.",syms:[],nursing:["DNR 동의서 확인·차트 보관","전자 차트·침대 헤드에 명확히 표시","코드 상황 시 CPR 시행하지 않음","DNR ≠ 치료 포기 (완화 치료는 지속)","인계 시 반드시 전달"],labs:["해당 없음"],notes:"DNR은 아무것도 하지 않음이 아님. 증상 완화·존엄한 임종·가족 지지는 계속됨.",related:["연명의료계획서","완화치료","호스피스"]},
+  {id:45,cat:"hospital",kr:"SBAR",en:"Situation Background Assessment Recommendation",abbr:"SBAR",urg:"normal",def:"의료진 간 의사소통을 표준화한 도구. 상황(S)·배경(B)·평가(A)·권고(R)로 구성.",syms:[],nursing:['S: "305호 김OO, 호흡곤란으로 SpO2 88%입니다."','B: "71세 COPD 과거력, 오늘 입원, 3L O2 중."','A: "천명음 증가, RR 26회/분, 불안 증상."','R: "기관지확장제 nebulizer 처방 부탁드립니다."'],labs:["해당 없음"],notes:"SBAR 사용은 의사소통 오류를 줄이고 환자 안전을 향상시키는 근거 기반 전략.",related:["환자안전","인계","의사소통"]},
+  {id:46,cat:"hospital",kr:"낙상예방",en:"Fall Prevention",abbr:"Fall Risk",urg:"normal",def:"입원 환자에서 낙상은 예방 가능한 주요 위해 사건. 낙상 위험 평가 후 단계별 예방 중재를 적용.",syms:[],nursing:["Morse Fall Scale로 위험 평가","고위험: 노란 팔찌·침대 표지판 표시","4가지 기본: 침대 난간↑+낮추기+콜벨+미끄럼 방지 양말","야간 조명 유지","낙상 위험 약물 검토 (진정제·이뇨제·혈압약)"],labs:["기립성 BP 측정","혈당","전해질"],notes:"낙상 발생 시: 환자 확인 → 의사 보고 → 사건보고서 → 보호자 연락. 신고 숨기는 것이 더 큰 문제.",related:["욕창","Morse Scale","기립성저혈압","환자안전"]},
+  {id:47,cat:"hospital",kr:"욕창위험도평가",en:"Braden Scale",abbr:"Braden",urg:"normal",def:"욕창 발생 위험도를 평가하는 도구. 감각인지·습기·활동·기동성·영양·마찰/전단 6항목, 6-23점.",syms:[],nursing:["18점↓ 위험 / 15-18: 경도 / 13-14: 중등도 / 10-12: 고위험","입원 시·수술 후·상태 변화 시마다 재평가","고위험: 2시간마다 체위 변경 기록","피부 사정 체위 변경마다"],labs:["Albumin, Prealbumin","혈당"],notes:"Braden: 낮을수록 위험이 높음 (역방향 채점). 욕창 진단 도구가 아닌 예방 도구.",related:["욕창","체위변경","영양지원"]},
+  {id:48,cat:"hospital",kr:"중심정맥관",en:"Central Venous Catheter",abbr:"CVC / PICC",urg:"normal",def:"말초 정맥 접근이 어렵거나 강한 약물(항암제·TPN·승압제) 투여 시 대정맥에 삽입하는 카테터.",syms:[],nursing:["삽입 후 X-ray로 위치·기흉 확인 필수","CLABSI 예방 번들: 손위생·최대 멸균·클로르헥시딘·최적 부위·매일 재평가","투명 드레싱 7일마다, 거즈 2일마다","매일 '이 카테터가 필요한가?' 재평가"],labs:["삽입 후 Chest X-ray","혈액배양 (감염 의심)","CBC, CRP"],notes:"CLABSI 예방은 삽입 후 유지 관리가 더 중요. 불필요한 CVC 조기 제거가 최선의 예방책.",related:["CLABSI","PICC","TPN","혈액배양"]},
+  {id:49,cat:"hospital",kr:"필요 시 투여",en:"Pro Re Nata",abbr:"PRN",urg:"normal",def:"정해진 시간이 아닌 환자의 증상·필요에 따라 투여하는 처방 방식.",syms:[],nursing:["투여 전 증상 평가 (통증 NRS, 체온 등)","마지막 투여 시간·허용 간격 확인","투여 후 효과 재평가·기록","PRN 과다 요청 시 정규 처방 전환 의사 보고"],labs:["해당 약물에 따라 다름"],notes:"PRN 기록에는 '투여 이유(증상)'와 '투여 후 효과'를 함께 기록해야 법적 효력.",related:["통증사정","마약성진통제","약물투여"]},
+  {id:50,cat:"hospital",kr:"즉시",en:"Statim",abbr:"STAT",urg:"normal",def:"라틴어 'statim'(즉시)에서 유래. 가장 높은 우선순위로 즉각 시행해야 하는 처방·검사 지시.",syms:[],nursing:["STAT 오더는 5-15분 이내 처리","약사 즉시 연락 → 우선 조제 요청","시행 정확한 시간 기록","결과 즉시 의사에게 보고"],labs:["STAT Lab: 보통 30-60분 이내 결과"],notes:"STAT 남용은 실제 응급 우선순위 판단을 흐리게 함. 진정한 STAT는 생명 위협 또는 즉각적 임상 결정 시에만.",related:["ASAP","응급처치"]},
 
 // ── 내분비 추가 ──
 {id:51,cat:“endocrine”,kr:“갑상샘기능저하증”,en:“Hypothyroidism”,abbr:“Hypothyroid”,urg:“normal”,def:“갑상샘 호르몬 분비가 부족하여 전신 대사가 저하되는 상태. 자가면역성(하시모토갑상샘염)이 가장 흔한 원인.”,syms:[“피로감, 무기력”,“체중 증가, 부종 (점액부종)”,“추위 과민, 변비”,“서맥, 혈압 저하”,“피부 건조, 탈모”,“집중력 저하, 우울”],nursing:[“갑상선호르몬제 (Levothyroxine) 매일 아침 공복에 복용 교육”,“복용 후 30-60분 후 식사 (철분·칼슘 보충제와 4시간 간격)”,“체온·맥박 모니터링”,“변비 예방: 수분·식이섬유 섭취”,“고령자에서 협심증·부정맥 유발 가능 — 저용량부터 시작”],labs:[“TSH (↑↑ — 1차 스크리닝)”,“Free T4 (↓)”,“Anti-TPO 항체 (하시모토)”,“CBC (빈혈)”,“Lipid panel (콜레스테롤↑)”],notes:“갑상샘기능저하증: TSH 상승 + T4 저하. TSH만 상승하고 T4 정상이면 ‘무증상 갑상샘기능저하증’.”,related:[“갑상샘기능항진증”,“하시모토갑상샘염”,“Levothyroxine”,“갑상샘암”]},
@@ -314,305 +310,194 @@ const CATS_LIST = [
 …Object.entries(CAT).map(([c,v]) => ({ c, kr:v.kr, col:v.col }))
 ];
 
-function Sec({ title, full, children }) {
-return (
-<div className={full ? “dsec full” : “dsec”}>
-<div className="dsec-t">{title}</div>
-{children}
-</div>
-);
+// ── state ──
+let state = { query:””, cat:“all”, openId:null, showPanel:false };
+let debTimer = null;
+
+function setState(patch) {
+Object.assign(state, patch);
+render();
 }
 
-function Card({ t, isAi, onRelated }) {
-const [open, setOpen] = useState(!!isAi);
-const cat = CAT[t.cat] || CAT.hospital;
-return (
-<div className={isAi ? “card ai-card” : “card”} style={{ borderLeft:`3px solid ${cat.col}` }}>
-<div className=“card-hd” onClick={() => setOpen(o => !o)}>
-<div className="card-main">
-<div className="card-top">
-<span className="card-kr">{t.kr}</span>
-<span style={{ fontSize:10, fontWeight:700, padding:“2px 7px”, borderRadius:100,
-background:UBG[t.urg]||UBG.normal, color:UC[t.urg]||UC.normal }}>
-{UL[t.urg]||“일반”}
-</span>
-{isAi && <span style={{ fontSize:10, fontWeight:700, padding:“2px 7px”, borderRadius:100,
-background:“rgba(0,191,166,0.15)”, color:”#00BFA6”, border:“1px solid rgba(0,191,166,0.3)” }}>
-AI
-</span>}
-</div>
-<div className="card-sub">
-<span className="card-en">{t.en}</span>
-<span style={{ fontFamily:“monospace”, fontSize:11, fontWeight:600, color:cat.col }}>{t.abbr}</span>
-</div>
-{!open && <div className="card-prev">{t.def}</div>}
-</div>
-<div className="card-r">
-<span className=“cat-pill” style={{ background:cat.light, color:cat.col }}>{cat.kr}</span>
-<span className={open ? “chev open” : “chev”}>▼</span>
-</div>
-</div>
-{open && (
-<div className="detail">
-<div className="dgrid">
-<Sec title="📋 정의" full><p style={{ fontSize:13, lineHeight:1.8 }}>{t.def}</p></Sec>
-{(t.syms||[]).length > 0 && (
-<Sec title="🔴 주요 증상">
-{(t.syms||[]).map((s,i) => (
-<div key={i} className="sym-row">
-<div className=“sym-dot” style={{ background:cat.col }} /><span>{s}</span>
-</div>
-))}
-</Sec>
-)}
-{(t.nursing||[]).length > 0 && (
-<Sec title="💉 간호 중재">
-{(t.nursing||[]).map((n,i) => (
-<div key={i} className="nrs-row">
-<span className=“nrs-n” style={{ color:cat.col }}>{String(i+1).padStart(2,“0”)}</span>
-<span>{n}</span>
-</div>
-))}
-</Sec>
-)}
-{(t.labs||[]).length > 0 && (
-<Sec title="🧪 검사 / 진단">
-<div className="labs">
-{(t.labs||[]).map((l,i) => <span key={i} className="lab">{l}</span>)}
-</div>
-</Sec>
-)}
-{t.notes && (
-<Sec title="⚡ 임상 팁" full><div className="note">{t.notes}</div></Sec>
-)}
-{(t.related||[]).length > 0 && (
-<Sec title="🔗 관련 용어" full>
-<div className="rels">
-{(t.related||[]).map((r,i) => (
-<span key={i} className=“rel” onClick={() => onRelated(r)}>{r}</span>
-))}
-</div>
-</Sec>
-)}
-</div>
-</div>
-)}
-</div>
-);
-}
-
-/* ── 외부 검색 패널 ── */
-function NotFoundPanel({ query }) {
-const q = encodeURIComponent(query);
-const links = [
-{
-name: “KMLE”,
-desc: “의학용어사전”,
-color: “#4A9EF5”,
-bg: “rgba(74,158,245,0.12)”,
-url: `https://www.kmle.co.kr/search.php?SearchString=${q}`,
-icon: “🔬”
-},
-{
-name: “Claude”,
-desc: “AI 의학 설명”,
-color: “#CC785C”,
-bg: “rgba(204,120,92,0.12)”,
-url: `https://claude.ai/new?q=${q}+의학용어+설명해줘`,
-icon: “✦”
-},
-{
-name: “ChatGPT”,
-desc: “AI 의학 설명”,
-color: “#10A37F”,
-bg: “rgba(16,163,127,0.12)”,
-url: `https://chatgpt.com/?q=${q}+의학용어+설명해줘`,
-icon: “✦”
-},
-{
-name: “Google”,
-desc: “의학 검색”,
-color: “#9B7EF5”,
-bg: “rgba(155,126,245,0.12)”,
-url: `https://www.google.com/search?q=${q}+의학용어`,
-icon: “🔍”
-},
-];
-return (
-<div style={{
-background:”#111D2C”, borderRadius:12,
-border:“1px solid rgba(255,255,255,0.1)”,
-padding:“16px”, marginBottom:10
-}}>
-<div style={{ fontSize:12, color:”#6B82A4”, marginBottom:14, fontWeight:600,
-textTransform:“uppercase”, letterSpacing:”.5px” }}>
-🔎 “{query}” — DB에서 찾지 못했습니다. 외부에서 검색해보세요
-</div>
-<div style={{ display:“flex”, gap:8, flexWrap:“wrap” }}>
-{links.map(({ name, desc, color, bg, url, icon }) => (
-<a key={name} href={url} target=”_blank” rel=“noreferrer”
-style={{
-display:“flex”, alignItems:“center”, gap:8,
-padding:“9px 14px”, borderRadius:9,
-background:bg, border:`1px solid ${color}44`,
-color, textDecoration:“none”, fontSize:13, fontWeight:600,
-flexShrink:0, transition:“opacity .15s”
-}}>
-<span>{icon}</span>
-<span style={{ display:“flex”, flexDirection:“column”, gap:1 }}>
-<span>{name}</span>
-<span style={{ fontSize:10, opacity:.7, fontWeight:400 }}>{desc}</span>
-</span>
-<span style={{ fontSize:11, opacity:.6 }}>↗</span>
-</a>
-))}
-</div>
-</div>
-);
-}
-
-/* ── 메인 앱 ── */
-export default function App() {
-const [query,     setQuery]     = useState(””);
-const [cat,       setCat]       = useState(“all”);
-const [aiResult,  setAiResult]  = useState(null);
-const [showPanel, setShowPanel] = useState(false);
-const debRef  = useRef(null);
-
-const filtered = DB.filter(t => {
-const cOk = cat === “all” || t.cat === cat;
-const q   = query.toLowerCase();
+// ── helpers ──
+function getFiltered() {
+return DB.filter(t => {
+const cOk = state.cat === “all” || t.cat === state.cat;
+const q = state.query.toLowerCase();
 return cOk && (!q || t.kr.includes(q) || t.en.toLowerCase().includes(q)
 || t.abbr.toLowerCase().includes(q) || t.def.includes(q));
 });
-
-const handleInput = val => {
-setQuery(val);
-setAiResult(null);
-setShowPanel(false);
-clearTimeout(debRef.current);
-if (!val.trim()) return;
-debRef.current = setTimeout(() => {
-const q    = val.toLowerCase();
-const hits = DB.filter(t =>
-t.kr.includes(q) || t.en.toLowerCase().includes(q) ||
-t.abbr.toLowerCase().includes(q) || t.def.includes(q)
-);
-if (hits.length === 0) setShowPanel(true);
-}, 500);
-
-};
-
-const handleRelated = term => {
-setQuery(term);
-setAiResult(null);
-setShowPanel(false);
-setCat(“all”);
-clearTimeout(debRef.current);
-const q    = term.toLowerCase();
-const hits = DB.filter(t => t.kr.includes(q) || t.en.toLowerCase().includes(q));
-if (hits.length === 0) debRef.current = setTimeout(() => setShowPanel(true), 300);
-window.scrollTo({ top:0, behavior:“smooth” });
-
-};
-
-const visibleCount = filtered.length + (aiResult ? 1 : 0);
-
-return (
-<>
-<style>{CSS}</style>
-<div className="app">
-
-```
-    {/* HEADER */}
-    <header className="hdr">
-      <div className="hdr-in">
-        <div className="hdr-r1">
-          <span className="logo">MedTerm<span className="logo-s">의료용어사전</span></span>
-          <div className="srch">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input value={query} onChange={e => handleInput(e.target.value)}
-              placeholder="한글·영어·약어 검색 (갑상샘, DVT, ARDS...)" />
-          </div>
-          <span className="cnt">{visibleCount}개</span>
-        </div>
-        <div className="tabs">
-          {CATS_LIST.map(({ c, kr, col }) => (
-            <button key={c} className={cat===c ? "tab on" : "tab"}
-              style={cat===c ? { background:col+"44", borderColor:"transparent" } : {}}
-              onClick={() => { setCat(c); setAiResult(null); setShowPanel(false); }}>
-              {kr}
-            </button>
-          ))}
-        </div>
-      </div>
-    </header>
-
-    {/* BODY */}
-    <div className="body">
-
-      {/* SIDEBAR */}
-      <aside className="sb">
-        <div className="sb-ttl">카테고리</div>
-        {CATS_LIST.map(({ c, kr, col }) => (
-          <div key={c} className="sb-row"
-            style={{
-              background: cat===c ? "#1C2A3D" : "transparent",
-              color:      cat===c ? "#DDE6F5" : "#6B82A4",
-              fontWeight: cat===c ? 600 : 400,
-            }}
-            onClick={() => { setCat(c); setAiResult(null); setShowPanel(false); }}>
-            <div className="sb-l">
-              <div className="sb-dot" style={{ background:col }} />
-              <span>{kr}</span>
-            </div>
-            <span className="sb-n">
-              {c==="all" ? DB.length : DB.filter(t => t.cat===c).length}
-            </span>
-          </div>
-        ))}
-      </aside>
-
-      {/* LIST */}
-      <div className="list">
-
-        {/* 외부 검색 패널 */}
-        {showPanel && query && filtered.length === 0 && (
-          <NotFoundPanel query={query} />
-        )}
-
-        {/* AI 결과 (관련 용어 클릭 등으로 캐시된 경우) */}
-        {aiResult && (
-          <Card t={aiResult} isAi={true} onRelated={handleRelated} />
-        )}
-
-        {/* DB 결과 */}
-        {filtered.map(t => (
-          <Card key={t.id} t={t} isAi={false} onRelated={handleRelated} />
-        ))}
-
-        {/* 빈 상태 */}
-        {!showPanel && !aiResult && filtered.length === 0 && query && (
-          <div className="empty">검색 결과가 없습니다</div>
-        )}
-        {!query && filtered.length === 0 && (
-          <div className="empty">검색어를 입력하세요</div>
-        )}
-      </div>
-    </div>
-  </div>
-</>
-```
-
-);
 }
 
-const root = ReactDOM.createRoot(document.getElementById(‘root’));
-root.render(<App />);
+function handleInput(val) {
+state.query = val;
+state.showPanel = false;
+clearTimeout(debTimer);
+if (!val.trim()) { render(); return; }
+render();
+debTimer = setTimeout(() => {
+const q = val.toLowerCase();
+const hits = DB.filter(t => t.kr.includes(q) || t.en.toLowerCase().includes(q)
+|| t.abbr.toLowerCase().includes(q) || t.def.includes(q));
+if (hits.length === 0) { state.showPanel = true; render(); }
+}, 500);
+}
+
+function toggleCard(id) {
+state.openId = state.openId === id ? null : id;
+render();
+}
+
+function clickRelated(term) {
+state.query = term;
+state.openId = null;
+state.showPanel = false;
+state.cat = “all”;
+clearTimeout(debTimer);
+const q = term.toLowerCase();
+const hits = DB.filter(t => t.kr.includes(q) || t.en.toLowerCase().includes(q));
+if (hits.length === 0) debTimer = setTimeout(() => { state.showPanel = true; render(); }, 300);
+render();
+window.scrollTo({ top:0, behavior:“smooth” });
+}
+
+// ── render card ──
+function renderCard(t) {
+const isOpen = state.openId === t.id;
+const cat = CAT[t.cat] || CAT.hospital;
+const urg = UL[t.urg] || “일반”;
+const urgC = UC[t.urg] || UC.normal;
+const urgB = UBG[t.urg] || UBG.normal;
+
+let detail = “”;
+if (isOpen) {
+const syms = (t.syms||[]).map(s =>
+`<div class="sym-row"><div class="sym-dot" style="background:${cat.col}"></div><span>${s}</span></div>`
+).join(””);
+const nrs = (t.nursing||[]).map((n,i) =>
+`<div class="nrs-row"><span class="nrs-n" style="color:${cat.col}">${String(i+1).padStart(2,"0")}</span><span>${n}</span></div>`
+).join(””);
+const labs = (t.labs||[]).map(l => `<span class="lab">${l}</span>`).join(””);
+const rels = (t.related||[]).map(r =>
+`<span class="rel" onclick="clickRelated('${r.replace(/'/g,"\'")}');return false;">${r}</span>`
+).join(””);
+
+```
+detail = `<div class="detail"><div class="dgrid">
+  <div class="dsec full"><div class="dsec-t">📋 정의</div><p style="font-size:13px;line-height:1.8">${t.def}</p></div>
+  ${syms ? `<div class="dsec"><div class="dsec-t">🔴 주요 증상</div>${syms}</div>` : ""}
+  ${nrs  ? `<div class="dsec"><div class="dsec-t">💉 간호 중재</div>${nrs}</div>` : ""}
+  ${labs ? `<div class="dsec"><div class="dsec-t">🧪 검사 / 진단</div><div class="labs">${labs}</div></div>` : ""}
+  ${t.notes ? `<div class="dsec full"><div class="dsec-t">⚡ 임상 팁</div><div class="note">${t.notes}</div></div>` : ""}
+  ${rels ? `<div class="dsec full"><div class="dsec-t">🔗 관련 용어</div><div class="rels">${rels}</div></div>` : ""}
+</div></div>`;
+```
+
+}
+
+return `<div class="card" style="border-left:3px solid ${cat.col}" id="card-${t.id}"> <div class="card-hd" onclick="toggleCard(${t.id})"> <div class="card-main"> <div class="card-top"> <span class="card-kr">${t.kr}</span> <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;background:${urgB};color:${urgC}">${urg}</span> </div> <div class="card-sub"> <span class="card-en">${t.en}</span> <span style="font-family:monospace;font-size:11px;font-weight:600;color:${cat.col}">${t.abbr}</span> </div> ${!isOpen ? `<div class="card-prev">${t.def}</div>` : “”}
+</div>
+<div class="card-r">
+<span class="cat-pill" style="background:${cat.light};color:${cat.col}">${cat.kr}</span>
+<span class=“chev ${isOpen?“open”:””}”>▼</span>
+</div>
+</div>
+${detail}
+
+  </div>`;
+}
+
+// ── render not-found panel ──
+function renderNotFound() {
+const q = encodeURIComponent(state.query);
+const links = [
+{ name:“KMLE”, desc:“의학용어사전”, col:”#4A9EF5”, bg:“rgba(74,158,245,0.12)”,
+url:`https://www.kmle.co.kr/search.php?SearchString=${q}`, icon:“🔬” },
+{ name:“Claude”, desc:“AI 의학 설명”, col:”#CC785C”, bg:“rgba(204,120,92,0.12)”,
+url:`https://claude.ai/new?q=${q}+의학용어+설명해줘`, icon:“✦” },
+{ name:“ChatGPT”, desc:“AI 의학 설명”, col:”#10A37F”, bg:“rgba(16,163,127,0.12)”,
+url:`https://chatgpt.com/?q=${q}+의학용어+설명해줘`, icon:“✦” },
+{ name:“Google”, desc:“의학 검색”, col:”#9B7EF5”, bg:“rgba(155,126,245,0.12)”,
+url:`https://www.google.com/search?q=${q}+의학용어`, icon:“🔍” },
+];
+const btns = links.map(l =>
+`<a href="${l.url}" target="_blank" rel="noreferrer" style="display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:9px; background:${l.bg};border:1px solid ${l.col}44;color:${l.col}; text-decoration:none;font-size:13px;font-weight:600;margin:4px 4px 0 0"> <span>${l.icon}</span> <span> <span style="display:block">${l.name}</span> <span style="display:block;font-size:10px;opacity:.7;font-weight:400">${l.desc}</span> </span> <span style="font-size:11px;opacity:.6">↗</span> </a>`
+).join(””);
+return `<div style="background:#111D2C;border-radius:12px;border:1px solid rgba(255,255,255,0.1);
+padding:16px;margin-bottom:10px">
+<div style="font-size:12px;color:#6B82A4;margin-bottom:12px;font-weight:600;
+text-transform:uppercase;letter-spacing:.5px">
+🔎 “${state.query}” — DB에서 찾지 못했습니다. 외부에서 검색해보세요
+</div>
+<div style="display:flex;flex-wrap:wrap">${btns}</div>
+
+  </div>`;
+}
+
+// ── main render ──
+function render() {
+const filtered = getFiltered();
+const total = filtered.length;
+
+// sidebar
+const sbRows = CATS_LIST.map(({ c, kr, col }) => {
+const cnt = c === “all” ? DB.length : DB.filter(t => t.cat === c).length;
+const active = state.cat === c;
+return `<div class="sb-row" onclick="setState({cat:'${c}',showPanel:false,openId:null})" style="background:${active?"#1C2A3D":"transparent"};color:${active?"#DDE6F5":"#6B82A4"};font-weight:${active?600:400}"> <div class="sb-l"><div class="sb-dot" style="background:${col}"></div><span>${kr}</span></div> <span class="sb-n">${cnt}</span> </div>`;
+}).join(””);
+
+// tabs
+const tabBtns = CATS_LIST.map(({ c, kr, col }) => {
+const active = state.cat === c;
+return `<button class="tab ${active?"on":""}" style="${active?`background:${col}44;border-color:transparent`:""}" onclick="setState({cat:'${c}',showPanel:false,openId:null})">${kr}</button>`;
+}).join(””);
+
+// cards
+const cards = filtered.map(renderCard).join(””);
+
+// not-found panel
+const nfPanel = (state.showPanel && state.query && filtered.length === 0)
+? renderNotFound() : “”;
+
+const emptyMsg = (!state.showPanel && filtered.length === 0 && state.query)
+? `<div class="empty">검색 결과가 없습니다</div>` : “”;
+
+document.getElementById(“app”).innerHTML = `
+
+  <div class="app">
+    <header class="hdr">
+      <div class="hdr-in">
+        <div class="hdr-r1">
+          <span class="logo">MedTerm<span class="logo-s">의료용어사전</span></span>
+          <div class="srch">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="#6B82A4" stroke-width="2" stroke-linecap="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input id="srch-input" type="search" value="${state.query.replace(/"/g,'&quot;')}"
+              placeholder="한글·영어·약어 검색 (갑상샘, DVT, ARDS...)"
+              oninput="handleInput(this.value)">
+          </div>
+          <span class="cnt">${total}개</span>
+        </div>
+        <div class="tabs">${tabBtns}</div>
+      </div>
+    </header>
+    <div class="body">
+      <aside class="sb">
+        <div class="sb-ttl">카테고리</div>
+        ${sbRows}
+      </aside>
+      <div class="list">
+        ${nfPanel}
+        ${cards}
+        ${emptyMsg}
+      </div>
+    </div>
+  </div>`;
+}
+
+render();
 </script>
 
 </body>
